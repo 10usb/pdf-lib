@@ -4,11 +4,6 @@ namespace pdflib\xreferences;
 use pdflib\datatypes\Dictionary;
 
 class Table {
-	/**
-	 * 
-	 * @var \pdflib\File
-	 */
-	private $file;
 	
 	/**
 	 * 
@@ -30,10 +25,8 @@ class Table {
 	
 	/**
 	 * 
-	 * @param \pdflib\File $file
 	 */
-	public function __construct($file){
-		$this->file			= $file;
+	public function __construct(){
 		$this->dictionary	= new Dictionary();
 		$this->sections		= [];
 		$this->previous		= null;
