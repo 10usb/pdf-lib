@@ -42,4 +42,12 @@ class Table {
 		$this->sections[] = $section;
 		return $section;
 	}
+	
+	/**
+	 * 
+	 * @return \pdflib\datatypes\Dictionary
+	 */
+	public function getDictionary(){
+		return $this->dictionary;
+	}
 }

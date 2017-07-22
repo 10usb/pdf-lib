@@ -118,7 +118,8 @@ class Handle {
 	 * @return string
 	 */
 	public function readline(){
-		if(!preg_match('/^(.*?)(?:\r\n|\n|\r)?$/', fgets($this->handle), $matches)) throw new \Exception('Failed readline');
+		if(($line = fgets($this->handle))==false) return false;
+		if(!preg_match('/^(.*?)(?:\r\n|\n|\r)?$/', $line, $matches)) throw new \Exception('Failed readline');
 		return $matches[1]; ;
 	}
 	

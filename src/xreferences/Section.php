@@ -11,8 +11,8 @@ class Section {
 		$this->entries = [];
 	}
 	
-	public function add($offset, $generation, $reference){
-		$entry = new Entry($offset, $generation, $reference);
+	public function add($offset, $generation, $used, $reference = null){
+		$entry = new Entry($offset, $generation, $used, $reference);
 		$this->entries[] = $entry;
 		return $entry;
 	}
