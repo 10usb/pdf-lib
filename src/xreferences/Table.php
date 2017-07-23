@@ -13,7 +13,7 @@ class Table {
 	
 	/**
 	 *
-	 * @var \pdflib\references\Section
+	 * @var \pdflib\references\Section[]
 	 */
 	private $sections;
 	
@@ -34,7 +34,7 @@ class Table {
 	
 	/**
 	 * 
-	 * @param numver $number
+	 * @param integer $number
 	 * @return \pdflib\xreferences\Section
 	 */
 	public function addSection($number){
@@ -49,5 +49,31 @@ class Table {
 	 */
 	public function getDictionary(){
 		return $this->dictionary;
+	}
+	
+	/**
+	 * 
+	 * @param \pdflib\Handle $handle
+	 */
+	public function flush($handle){
+		foreach($this->sections as $section){
+			$section->flush($handle);
+		}
+		
+		$handle->seek($handle->getOffset());
+		$startxref = $handle->tell();
+		$handle->writeline('xref');
+		foreach($this->sections as $section){
+			$handle->writeline(sprintf('%d %d', $section->getNumber(), $section->getSize()));
+			foreach($section->getEntries() as $entry){
+				$handle->writeline(substr(sprintf('%010d %05d %s  ', $entry->getOffset(), $entry->getGeneration(), $entry->isUsed() ? 'n' : 'f'), 0, 20 - strlen($handle->getLineEnding())));
+			}
+		}
+		$handle->writeline('trailer');
+		$handle->writeline($this->dictionary->output());
+		$handle->writeline('startxref');
+		$handle->writeline($startxref);
+		$handle->write('%%EOF');
+		
 	}
 }

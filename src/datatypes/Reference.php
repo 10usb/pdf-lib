@@ -16,7 +16,19 @@ class Reference implements Object {
 		return $this->number.' '.$this->generation.' R';
 	}
 	
+	public function getNumber(){
+		return $this->number;
+	}
+	
+	public function getGeneration(){
+		return $this->generation;
+	}
+	
 	public function getObject(){
 		return $this->object;
+	}
+	
+	public function getBody(){
+		return 'hoi';
 	}
 }

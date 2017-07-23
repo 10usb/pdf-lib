@@ -63,11 +63,21 @@ class File {
 	}
 	
 	/**
-	 * Flushed all un committed data to the stream
+	 * Flushed all uncommitted data to the stream
 	 * @param boolean $finalize Should the trailer be made permanent
 	 */
 	public function flush($finalize = false){
-		if(!$this->handle) $this->handle = new Handle($this->name, true);
+		if(!$this->handle){
+			$this->handle = new Handle($this->name, true);
+			$this->handle->writeline('%PDF-1.4');
+			$this->handle->setOffset($this->handle->tell());
+		}
+		$this->xreference->flush($this->handle);
+		
+		if($finalize){
+			$this->handle->seek(0, true);
+			$this->handle->setOffset($this->handle->tell());
+		}
 	}
 	
 	/**

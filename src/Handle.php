@@ -19,6 +19,7 @@ class Handle {
 	 * @var unknown
 	 */
 	private $lineEnding;
+	
 	/**
 	 *
 	 * @param string $filename
@@ -78,15 +79,6 @@ class Handle {
 		$this->lineEnding = $lineEnding;
 		return $this;
 	}
-	
-	/**
-	 * Returns the contents of the pdf file
-	 * @return string
-	 */
-	public function getContents(){
-		return stream_get_contents($this->handle, -1, 0);
-	}
-	
 	/**
 	 * Moves the current position in the stream
 	 * @param number $offset
@@ -137,6 +129,14 @@ class Handle {
 	 */
 	public function writeline($data){
 		fwrite($this->handle, $data.$this->lineEnding);
+	}
+	
+	/**
+	 * Returns the contents of the pdf file
+	 * @return string
+	 */
+	public function getContents(){
+		return stream_get_contents($this->handle, -1, 0);
 	}
 	
 }
