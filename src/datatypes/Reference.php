@@ -29,6 +29,6 @@ class Reference implements Object {
 	}
 	
 	public function getBody(){
-		return 'hoi';
+		return $this->object->output();
 	}
 }

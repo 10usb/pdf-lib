@@ -77,6 +77,18 @@ class Entry {
 	 * @param \pdflib\Handle $handle
 	 */
 	public function flush($handle){
-		// TODO flush real object
+		// Not goog enough :'(
+		if($this->offset > 0) return false;
+		if(!$this->reference) return false;
+		
+		
+		$handle->seek($handle->getOffset());
+		
+		$this->offset = $handle->tell();
+		$handle->writeline(sprintf('%d %d obj', $this->reference->getNumber(), $this->reference->getGeneration()));
+		$handle->writeline($this->reference->getBody());
+		$handle->writeline('endobj');
+		$handle->writeline('');
+		$handle->setOffset($handle->tell());
 	}
 }

@@ -2,6 +2,7 @@
 namespace pdflib;
 
 use pdflib\xreferences\Table;
+use pdflib\structure\Information;
 
 class File {
 	/**
@@ -98,5 +99,14 @@ class File {
 	public function getContents(){
 		$this->flush();
 		return $this->handle->getContents();
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return \pdflib\structure\Information
+	 */
+	public function getInformation(){
+		return new Information($this->xreference);
 	}
 }

@@ -16,6 +16,15 @@ class Dictionary implements Object {
 		return '<<'.implode(' ', $outputs).'>>';
 	}
 	
+	public function get($key){
+		foreach($this->entries as $entry){
+			if($entry->key == $key){
+				return $entry->value;
+			}
+		}
+		return false;
+	}
+	
 	public function set($key, $value){
 		if(!$value instanceof Object){
 			throw new \Exception('Not an object type');
