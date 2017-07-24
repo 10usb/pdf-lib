@@ -9,7 +9,7 @@ class Text implements Object {
 	}
 	
 	public function output(){
-		if(preg_match('/[^!-~]|\n|\r|\t|\(|\)|\\\\/', $this->value)){
+		if(preg_match('/[^!-~ ]|\n|\r|\t|\(|\)|\\\\/', $this->value)){
 			return '<'.end(unpack('H*', $this->value)).'>';
 		}
 		

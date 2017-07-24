@@ -45,6 +45,9 @@ class File {
 	 */
 	public function load(){
 		$this->handle = new Handle($this->name);
+		$this->handle->seek(0, true);
+		$this->handle->setOffset($this->handle->tell());
+		
 		$this->handle->seek(-28, true);
 		if(!preg_match('/startxref(?:\r\n|\n|\r)(\d+)(\r\n|\n|\r)%%EOF/', $this->handle->read(28), $matches)) throw new \Exception('Failed to load file');
 		$this->handle->setLineEnding($matches[2]);
