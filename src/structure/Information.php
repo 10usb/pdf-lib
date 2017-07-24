@@ -141,7 +141,7 @@ class Information {
 	 * @return \pdflib\structure\Information
 	 */
 	public function setCreated($value){
-		$this->setValue('CreationDate', new Text('D:'.substr($value->format('YMDHisO', 0, -2)).substr($value->format('O', -2))));
+		$this->setValue('CreationDate', new Text('D:'.substr($value->format('YmdHisO'), 0, -2)."'".substr($value->format('O'), -2)."'"));
 		return $this;
 	}
 	
@@ -158,7 +158,7 @@ class Information {
 	 * @param \DateTime $value
 	 */
 	public function setModified($value){
-		$this->setValue('ModDate', new Text('D:'.substr($value->format('YMDHisO', 0, -2)).substr($value->format('O', -2))));
+		$this->setValue('ModDate', new Text('D:'.substr($value->format('YmdHisO'), 0, -2)."'".substr($value->format('O'), -2)."'"));
 		return $this;
 	}
 	
