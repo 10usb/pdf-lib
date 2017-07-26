@@ -54,7 +54,8 @@ class File {
 		$this->handle->setLineEnding($matches[2]);
 		
 		$this->handle->seek($matches[1]);
-		$this->xreference = Reader::readTable($this->handle);
+		$this->xreference	= new Table();
+		$this->xreference->setPrevious(Reader::readTable($this->handle));
 	}
 	
 	/**

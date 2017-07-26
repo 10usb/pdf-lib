@@ -46,12 +46,28 @@ class Table {
 	
 	/**
 	 * 
+	 * @param \pdflib\references\Table $previous
+	 */
+	public function setPrevious($previous){
+		$this->previous = $previous;
+	}
+	
+	/**
+	 * 
+	 * @return \pdflib\references\Table
+	 */
+	public function getPrevious(){
+		return $this->previous;
+	}
+	
+	/**
+	 * 
 	 * @return \pdflib\datatypes\Dictionary
 	 */
 	public function getDictionary(){
 		if(!$this->dictionary){
 			if($this->previous){
-				$this->dictionary = clone $this->previous->dictionary;
+				$this->dictionary = clone $this->previous->getDictionary();
 			}else{
 				$this->dictionary = new Dictionary();
 			}
