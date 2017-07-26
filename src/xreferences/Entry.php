@@ -1,6 +1,8 @@
 <?php
 namespace pdflib\xreferences;
 
+use pdflib\Parser;
+
 class Entry {
 	/**
 	 * The offset where the indirect object can be found
@@ -66,10 +68,21 @@ class Entry {
 	
 	/**
 	 * 
+	 * @param \pdflib\Handle $handle
 	 * @return \pdflib\datatypes\Indirect|null
 	 */
-	public function getIndirect(){
+	public function getIndirect($handle){
+		if(!$this->indirect && $this->used){
+			if($this->offset <= 0) throw new \Exception('Something internal went wrong, blame the programmer!');
+			$handle->seek($this->offset);
+			$this->indirect = Parser::readIndirect($handle);
+		}
 		return $this->indirect;
+	}
+	
+	public function isModified(){
+		if(!$this->indirect) return false;
+		return $this->indirect->isModified();
 	}
 	
 	/**
@@ -80,6 +93,7 @@ class Entry {
 		// Not goog enough :'(
 		if($this->offset > 0) return false;
 		if(!$this->indirect) return false;
+		//isModified()
 		
 		
 		$handle->seek($handle->getOffset());

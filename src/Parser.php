@@ -5,6 +5,8 @@ use pdflib\xreferences\Table;
 use pdflib\datatypes\Dictionary;
 use pdflib\datatypes\Name;
 use pdflib\datatypes\Reference;
+use pdflib\datatypes\Indirect;
+use pdflib\datatypes\Text;
 
 class Parser {
 	/**
@@ -47,6 +49,28 @@ class Parser {
 	/**
 	 * 
 	 * @param \pdflib\Handle $handle
+	 * @return \pdflib\datatypes\Indirect
+	 */
+	public static function readIndirect($handle){
+		if(!preg_match('/(\d+) (\d+) obj/', $handle->readline(), $matches)) throw new \Exception('Failed to load indirect object');
+		$object = self::readObject($handle, $handle->readline());
+		
+		if($object instanceof Dictionary && $object->get('Length')!==false){
+			if($handle->readline() != 'stream') throw new \Exception('Not an stream');
+			$indirect = new Stream($matches[1], $matches[2], $object);
+			die(':P');
+		}else{
+			$indirect = new Indirect($matches[1], $matches[2], $object);
+		}
+		
+		if($handle->readline() != 'endobj') throw new \Exception('Not an endobj');
+		
+		return $indirect;
+	}
+	
+	/**
+	 * 
+	 * @param \pdflib\Handle $handle
 	 * @return \pdflib\datatypes\Object
 	 */
 	public static function readObject($handle, $buffer, &$offset = 0){
@@ -62,6 +86,11 @@ class Parser {
 				$value = self::readObject($handle, $buffer, $offset);
 				
 				$dictionary->set($key, $value);
+				
+				if($offset >= strlen($buffer)){
+					$buffer = $handle->readline();
+					$offset = 0;
+				}
 			}
 			
 			return $dictionary;
@@ -74,6 +103,20 @@ class Parser {
 			$offset+= strlen($matches[0]);
 			
 			return new Reference($matches[1], $matches[2]);
+		}elseif(preg_match('/^\((.*?)(\)|\\\\)\s*/', substr($buffer, $offset), $matches)){
+			$offset+= strlen($matches[0]);
+			$text = $matches[1];
+			
+			if($matches[2] == '\\'){
+				$buffer = $handle->readline();
+				while(preg_match('/^(.*?)(\)|\\\\)\s*/', $buffer, $matches)){
+					$text.= $matches[1];
+					if($matches[2]==')') break;
+				}
+				$offset= strlen($matches[0]);
+			}
+			
+			return new Text($text);
 		}
 		
 		echo ":(\n";

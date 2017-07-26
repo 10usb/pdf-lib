@@ -13,10 +13,18 @@ class Information {
 	
 	/**
 	 * 
-	 * @param \pdflib\xreferences\Table $table
+	 * @var \pdflib\Handle
 	 */
-	public function __construct($table){
-		$this->table = $table;
+	private $handle;
+	
+	/**
+	 * 
+	 * @param \pdflib\xreferences\Table $table
+	 * @param \pdflib\Handle $handle
+	 */
+	public function __construct($table, $handle){
+		$this->table	= $table;
+		$this->handle	= $handle;
 	}
 	
 	/**
@@ -184,7 +192,7 @@ class Information {
 			$this->table->getDictionary()->set('Info', $reference);
 		}
 		
-		$indirect = $this->table->getIndirect($reference);
+		$indirect = $this->table->getIndirect($this->handle, $reference);
 		$indirect->getObject()->set($name, $value);
 	}
 }

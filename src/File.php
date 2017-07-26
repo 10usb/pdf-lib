@@ -108,6 +108,6 @@ class File {
 	 * @return \pdflib\structure\Information
 	 */
 	public function getInformation(){
-		return new Information($this->xreference);
+		return new Information($this->xreference, $this->handle);
 	}
 }

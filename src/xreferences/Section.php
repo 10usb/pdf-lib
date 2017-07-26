@@ -2,6 +2,7 @@
 namespace pdflib\xreferences;
 
 use pdflib\datatypes\Reference;
+use pdflib\datatypes\Referenceable;
 
 class Section {
 	/**
@@ -43,22 +44,26 @@ class Section {
 	
 	/**
 	 * 
-	 * @param \pdflib\datatypes\Reference $reference
+	 * @param \pdflib\datatypes\Referenceable $reference
 	 */
 	public function contains($reference){
-		if(!$reference instanceof Reference) throw new \Exception('Unexpected value expected Reference');
+		if(!$reference instanceof Referenceable) throw new \Exception('Unexpected value expected Referenceable');
 		
 		return $reference->getNumber() >= $this->number && $reference->getNumber() < ($this->number + count($this->entries));
 	}
 	
 	/**
 	 *
-	 * @param \pdflib\datatypes\Reference $reference
+	 * @param \pdflib\datatypes\Referenceable $reference
 	 */
-	public function getIndirect($reference){
+	public function getIndirect($handle, $reference){
 		if(!$this->contains($reference)) return null;
 		
-		return $this->entries[$reference->getNumber() - $this->number]->getIndirect();
+		return $this->entries[$reference->getNumber() - $this->number]->getIndirect($handle);
+	}
+	
+	public function canAppend($referenable){
+		return $referenable->getNumber() == ($this->number + count($this->entries));
 	}
 	
 	/**

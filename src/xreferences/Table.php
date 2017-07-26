@@ -4,6 +4,7 @@ namespace pdflib\xreferences;
 use pdflib\datatypes\Dictionary;
 use pdflib\datatypes\Reference;
 use pdflib\datatypes\Indirect;
+use pdflib\datatypes\Referenceable;
 
 class Table {
 	
@@ -76,11 +77,52 @@ class Table {
 		return $this->dictionary;
 	}
 	
+	public function getModifications(&$modifications = []){
+		foreach($this->sections as $section){
+			foreach($section->getEntries() as $entry){
+				if($entry->isModified()) $modifications[] = $entry->getIndirect(null);
+			}
+		}
+		if($this->previous){
+			$this->previous->getModifications($modifications);
+		}
+		
+		return $modifications;
+	}
+	
 	/**
 	 * 
 	 * @param \pdflib\Handle $handle
 	 */
 	public function flush($handle){
+		if($this->previous){
+			$modifications = $this->previous->getModifications();
+			
+			foreach($modifications as $modification){
+				$exists = false;
+				foreach($this->sections as $section){
+					if($section->contains($modification)){
+						$exists = true;
+					}
+				}
+				
+				if(!$exists){
+					$appended = false;
+					foreach($this->sections as $section){
+						if($section->canAppend($modification)){
+							$section->add(0, $modification->getGeneration(), true, $modification);
+							$appended = true;
+						}
+					}
+					
+					if(!$appended){
+						$this->addSection($modification->getNumber())->add(0, $modification->getGeneration(), true, $modification);
+					}
+				}
+				
+			}
+		}
+		
 		foreach($this->sections as $section){
 			$section->flush($handle);
 		}
@@ -120,19 +162,19 @@ class Table {
 	
 	/**
 	 * 
-	 * @param \pdflib\datatypes\Reference $reference
+	 * @param \pdflib\datatypes\Referenceable $reference
 	 */
-	public function getIndirect($reference){
-		if(!$reference instanceof Reference) throw new \Exception('Unexpected value expected Reference');
+	public function getIndirect($handle, $reference){
+		if(!$reference instanceof Referenceable) throw new \Exception('Unexpected value expected Reference');
 		
 		foreach($this->sections as $section){
 			if($section->contains($reference)){
-				return $section->getIndirect($reference);
+				return $section->getIndirect($handle, $reference);
 			}
 		}
 		
 		if($this->previous){
-			return $this->previous->getIndirect($reference);
+			return $this->previous->getIndirect($handle, $reference);
 		}
 		return null;
 	}

@@ -1,7 +1,7 @@
 <?php
 namespace pdflib\datatypes;
 
-class Reference implements Object {
+class Reference implements Object, Referenceable {
 	private $number;
 	private $generation;
 	
