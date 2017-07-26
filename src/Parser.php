@@ -4,7 +4,7 @@ namespace pdflib;
 use pdflib\xreferences\Table;
 use pdflib\datatypes\Dictionary;
 
-class Reader {
+class Parser {
 	/**
 	 * 
 	 * @param \pdflib\Handle $handle

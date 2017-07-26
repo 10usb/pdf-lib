@@ -55,7 +55,7 @@ class File {
 		
 		$this->handle->seek($matches[1]);
 		$this->xreference	= new Table();
-		$this->xreference->setPrevious(Reader::readTable($this->handle));
+		$this->xreference->setPrevious(Parser::readTable($this->handle));
 	}
 	
 	/**
