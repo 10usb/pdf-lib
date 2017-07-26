@@ -22,22 +22,22 @@ class Entry {
 	
 	/**
 	 * The reference object of this entry when loaded in memory otherwise null
-	 * @var \pdflib\datatypes\Reference|null
+	 * @var \pdflib\datatypes\Indirect|null
 	 */
-	private $reference;
+	private $indirect;
 	
 	/**
 	 * 
 	 * @param integer $offset
 	 * @param integer $generation
 	 * @param boolean $used
-	 * @param \pdflib\datatypes\Reference|null $reference
+	 * @param \pdflib\datatypes\Indirect|null $reference
 	 */
-	public function __construct($offset, $generation, $used, $reference){
+	public function __construct($offset, $generation, $used, $indirect){
 		$this->offset		= $offset;
 		$this->generation	= $generation;
 		$this->used			= $used;
-		$this->reference	= $reference;
+		$this->indirect		= $indirect;
 	}
 	
 	/**
@@ -66,10 +66,10 @@ class Entry {
 	
 	/**
 	 * 
-	 * @return \pdflib\datatypes\Reference|null
+	 * @return \pdflib\datatypes\Indirect|null
 	 */
-	public function getReference(){
-		return $this->reference;
+	public function getIndirect(){
+		return $this->indirect;
 	}
 	
 	/**
@@ -79,14 +79,14 @@ class Entry {
 	public function flush($handle){
 		// Not goog enough :'(
 		if($this->offset > 0) return false;
-		if(!$this->reference) return false;
+		if(!$this->indirect) return false;
 		
 		
 		$handle->seek($handle->getOffset());
 		
 		$this->offset = $handle->tell();
-		$handle->writeline(sprintf('%d %d obj', $this->reference->getNumber(), $this->reference->getGeneration()));
-		$handle->writeline($this->reference->getBody());
+		$handle->writeline(sprintf('%d %d obj', $this->indirect->getNumber(), $this->indirect->getGeneration()));
+		$handle->writeline($this->indirect->getBody());
 		$handle->writeline('endobj');
 		$handle->writeline('');
 		$handle->setOffset($handle->tell());

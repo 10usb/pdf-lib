@@ -1,7 +1,7 @@
 <?php
 namespace pdflib\datatypes;
 
-class Stream extends Reference {
+class Stream extends Indirect {
 	private $data;
 	
 	public function __construct($number, $generation){

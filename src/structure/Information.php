@@ -183,6 +183,8 @@ class Information {
 			$reference = $this->table->allocate(new Dictionary());
 			$this->table->getDictionary()->set('Info', $reference);
 		}
-		$reference->getObject()->set($name, $value);
+		
+		$indirect = $this->table->getIndirect($reference);
+		$indirect->getObject()->set($name, $value);
 	}
 }

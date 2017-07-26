@@ -16,6 +16,10 @@ class Dictionary implements Object {
 		return '<<'.implode(' ', $outputs).'>>';
 	}
 	
+	public function getEntries(){
+		return $this->entries;
+	}
+	
 	public function get($key){
 		foreach($this->entries as $entry){
 			if($entry->key == $key){
@@ -29,6 +33,9 @@ class Dictionary implements Object {
 		if(!$value instanceof Object){
 			throw new \Exception('Not an object type');
 		}
+		if(!$key instanceof Name){
+			$key = new Name($key);
+		}
 		
 		foreach($this->entries as $entry){
 			if($entry->key == $key){
@@ -38,7 +45,7 @@ class Dictionary implements Object {
 		}
 		
 		$entry = new \stdClass();
-		$entry->key		= new Name($key);
+		$entry->key		= $key;
 		$entry->value	= $value;
 		$this->entries[] = $entry;
 		return $this;

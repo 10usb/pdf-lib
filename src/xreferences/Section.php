@@ -1,6 +1,8 @@
 <?php
 namespace pdflib\xreferences;
 
+use pdflib\datatypes\Reference;
+
 class Section {
 	/**
 	 * 
@@ -41,14 +43,34 @@ class Section {
 	
 	/**
 	 * 
+	 * @param \pdflib\datatypes\Reference $reference
+	 */
+	public function contains($reference){
+		if(!$reference instanceof Reference) throw new \Exception('Unexpected value expected Reference');
+		
+		return $reference->getNumber() >= $this->number && $reference->getNumber() < ($this->number + count($this->entries));
+	}
+	
+	/**
+	 *
+	 * @param \pdflib\datatypes\Reference $reference
+	 */
+	public function getIndirect($reference){
+		if(!$this->contains($reference)) return null;
+		
+		return $this->entries[$reference->getNumber() - $this->number]->getIndirect();
+	}
+	
+	/**
+	 * 
 	 * @param integer $offset
 	 * @param integer $generation
 	 * @param boolean $used
-	 * @param  \pdflib\datatypes\Reference|null $reference
+	 * @param  \pdflib\datatypes\Indirect|null $indirect
 	 * @return \pdflib\xreferences\Entry
 	 */
-	public function add($offset, $generation, $used, $reference = null){
-		$entry = new Entry($offset, $generation, $used, $reference);
+	public function add($offset, $generation, $used, $indirect = null){
+		$entry = new Entry($offset, $generation, $used, $indirect);
 		$this->entries[] = $entry;
 		return $entry;
 	}

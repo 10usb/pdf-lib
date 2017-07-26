@@ -1,17 +1,15 @@
 <?php
 namespace pdflib\datatypes;
 
-class Reference implements Object {
+class Indirect {
 	private $number;
 	private $generation;
+	private $object;
 	
-	public function __construct($number, $generation){
+	public function __construct($number, $generation, $object = null){
 		$this->number		= $number;
 		$this->generation	= $generation;
-	}
-	
-	public function output(){
-		return $this->number.' '.$this->generation.' R';
+		$this->object		= $object;
 	}
 	
 	public function getNumber(){
@@ -20,5 +18,13 @@ class Reference implements Object {
 	
 	public function getGeneration(){
 		return $this->generation;
+	}
+	
+	public function getObject(){
+		return $this->object;
+	}
+	
+	public function getBody(){
+		return $this->object->output();
 	}
 }
