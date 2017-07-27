@@ -176,7 +176,15 @@ class Information {
 	 * @return string
 	 */
 	private function getValue($name){
-		return '';
+		$reference = $this->table->getDictionary()->get('Info');
+		
+		if(!$reference){
+			$reference = $this->table->allocate(new Dictionary());
+			$this->table->getDictionary()->set('Info', $reference);
+		}
+		
+		$indirect = $this->table->getIndirect($this->handle, $reference);
+		return $indirect->getObject()->get($name, $value);
 	}
 	
 	/**
@@ -198,7 +206,6 @@ class Information {
 		}else{
 			$indirect->getObject()->set($name, $value);
 		} 
-		
 	}
 	
 	/**
