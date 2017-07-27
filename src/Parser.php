@@ -7,6 +7,7 @@ use pdflib\datatypes\Name;
 use pdflib\datatypes\Reference;
 use pdflib\datatypes\Indirect;
 use pdflib\datatypes\Text;
+use pdflib\datatypes\Number;
 
 class Parser {
 	/**
@@ -100,7 +101,7 @@ class Parser {
 			return new Name(preg_replace_callback('/#[0-9a-f]{2}/i', function($matches){
 				return chr(hexdec($matches[0]));
 			}, $matches[1]));
-		}elseif(preg_match('/^(\d+) (\d+) R/', substr($buffer, $offset), $matches)){
+		}elseif(preg_match('/^(\d+) (\d+) R\s*/', substr($buffer, $offset), $matches)){
 			$offset+= strlen($matches[0]);
 			
 			return new Reference($matches[1], $matches[2]);
@@ -118,13 +119,14 @@ class Parser {
 			}
 			
 			return new Text($text);
+		}elseif(preg_match('/^(\d+(\.\d+)?)\s*/', substr($buffer, $offset), $matches)){
+			$offset+= strlen($matches[0]);
+			
+			return new Number($matches[1]);
 		}
 		
 		echo ":(\n";
 		echo substr($buffer, $offset);
 		exit;
-		//$line = $handle->readline();
-		//echo $handle->readline();
-		return new Dictionary();
 	}
 }
