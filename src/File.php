@@ -110,4 +110,9 @@ class File {
 	public function getInformation(){
 		return new Information($this->xreference, $this->handle);
 	}
+	
+	
+	public function getCatalog(){
+		return new Catalog($this->xreference, $this->handle);
+	}
 }

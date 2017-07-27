@@ -5,6 +5,7 @@ use pdflib\datatypes\Dictionary;
 use pdflib\datatypes\Reference;
 use pdflib\datatypes\Indirect;
 use pdflib\datatypes\Referenceable;
+use pdflib\datatypes\Number;
 
 class Table {
 	
@@ -92,14 +93,39 @@ class Table {
 		if(!$this->dictionary){
 			if($this->previous){
 				$this->dictionary = clone $this->previous->getDictionary();
+				$this->dictionary->set('Size', new Number(0));
 			}else{
 				$this->dictionary = new Dictionary();
+				$this->dictionary->set('Size', new Number(0));
 			}
 			$this->finalize();
 		}
 		return $this->dictionary;
 	}
 	
+	/**
+	 *
+	 * @return \pdflib\references\Table
+	 */
+	public function getSize(){
+		$size = 0; 
+		
+		foreach($this->sections as $section){
+			$size+= $section->getSize();
+		}
+		
+		if($this->previous){
+			$size+= $this->previous->getSize();
+		}
+		
+		return $size;
+	}
+	
+	/**
+	 * 
+	 * @param \pdflib\datatypes\Indirect[] $modifications
+	 * @return \pdflib\datatypes\Indirect[]
+	 */
 	public function getModifications(&$modifications = []){
 		foreach($this->sections as $section){
 			foreach($section->getEntries() as $entry){
@@ -151,6 +177,9 @@ class Table {
 		}
 		
 		if($this->isModified()){
+			
+			$this->getDictionary()->set('Size', new Number($this->getSize()));
+			
 			$handle->seek($handle->getOffset());
 			$startxref = $handle->tell();
 			$handle->writeline('xref');
