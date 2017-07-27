@@ -41,7 +41,7 @@ class Information {
 	 * @return \pdflib\structure\Information
 	 */
 	public function setTitle($value){
-		$this->setValue('Title', new Text($value));
+		$this->setValue('Title', $this->isEmpty($value) ? false: new Text($value));
 		return $this;
 	}
 	
@@ -59,7 +59,7 @@ class Information {
 	 * @return \pdflib\structure\Information
 	 */
 	public function setAuthor($value){
-		$this->setValue('Author', new Text($value));
+		$this->setValue('Author', $this->isEmpty($value) ? false: new Text($value));
 		return $this;
 	}
 	
@@ -77,7 +77,7 @@ class Information {
 	 * @return \pdflib\structure\Information
 	 */
 	public function setSubject($value){
-		$this->setValue('Subject', new Text($value));
+		$this->setValue('Subject', $this->isEmpty($value) ? false: new Text($value));
 		return $this;
 	}
 	
@@ -95,7 +95,7 @@ class Information {
 	 * @return \pdflib\structure\Information
 	 */
 	public function setKeywords($value){
-		$this->setValue('Keywords', new Text($value));
+		$this->setValue('Keywords', $this->isEmpty($value) ? false: new Text($value));
 		return $this;
 	}
 	
@@ -113,7 +113,7 @@ class Information {
 	 * @return \pdflib\structure\Information
 	 */
 	public function setCreator($value){
-		$this->setValue('Creator', new Text($value));
+		$this->setValue('Creator', $this->isEmpty($value) ? false: new Text($value));
 		return $this;
 	}
 	
@@ -131,7 +131,7 @@ class Information {
 	 * @return \pdflib\structure\Information
 	 */
 	public function setProducer($value){
-		$this->setValue('Producer', new Text($value));
+		$this->setValue('Producer', $this->isEmpty($value) ? false: new Text($value));
 		return $this;
 	}
 	
@@ -149,7 +149,7 @@ class Information {
 	 * @return \pdflib\structure\Information
 	 */
 	public function setCreated($value){
-		$this->setValue('CreationDate', new Text('D:'.substr($value->format('YmdHisO'), 0, -2)."'".substr($value->format('O'), -2)."'"));
+		$this->setValue('CreationDate', $this->isEmpty($value) ? false: new Text('D:'.substr($value->format('YmdHisO'), 0, -2)."'".substr($value->format('O'), -2)."'"));
 		return $this;
 	}
 	
@@ -166,7 +166,7 @@ class Information {
 	 * @param \DateTime $value
 	 */
 	public function setModified($value){
-		$this->setValue('ModDate', new Text('D:'.substr($value->format('YmdHisO'), 0, -2)."'".substr($value->format('O'), -2)."'"));
+		$this->setValue('ModDate', $this->isEmpty($value) ? false: new Text('D:'.substr($value->format('YmdHisO'), 0, -2)."'".substr($value->format('O'), -2)."'"));
 		return $this;
 	}
 	
@@ -193,6 +193,21 @@ class Information {
 		}
 		
 		$indirect = $this->table->getIndirect($this->handle, $reference);
-		$indirect->getObject()->set($name, $value);
+		if($value === false){
+			$indirect->getObject()->remove($name);
+		}else{
+			$indirect->getObject()->set($name, $value);
+		} 
+		
+	}
+	
+	/**
+	 * 
+	 * @param mixed $value
+	 * @return boolean
+	 */
+	private function isEmpty($value){
+		return $value === null || $value === '' || $value === false;
+		
 	}
 }

@@ -2,12 +2,24 @@
 namespace pdflib\datatypes;
 
 class Dictionary implements Object {
+	/**
+	 * 
+	 * @var array
+	 */
 	private $entries;
 	
+	/**
+	 * 
+	 */
 	public function __construct(){
 		$this->entries = [];
 	}
 	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \pdflib\datatypes\Object::output()
+	 */
 	public function output(){
 		$outputs = [];
 		foreach($this->entries as $value){
@@ -16,10 +28,19 @@ class Dictionary implements Object {
 		return '<<'.implode(' ', $outputs).'>>';
 	}
 	
+	/**
+	 * 
+	 * @return array
+	 */
 	public function getEntries(){
 		return $this->entries;
 	}
 	
+	/**
+	 * 
+	 * @param string $key
+	 * @return \pdflib\datatypes\Object|boolean
+	 */
 	public function get($key){
 		foreach($this->entries as $entry){
 			if($entry->key == $key){
@@ -29,6 +50,12 @@ class Dictionary implements Object {
 		return false;
 	}
 	
+	/**
+	 * 
+	 * @param string|\pdflib\datatypes\Name $key
+	 * @param \pdflib\datatypes\Object $value
+	 * @return \pdflib\datatypes\Dictionary
+	 */
 	public function set($key, $value){
 		if(!$value instanceof Object){
 			throw new \Exception('Not an object type');
@@ -49,5 +76,21 @@ class Dictionary implements Object {
 		$entry->value	= $value;
 		$this->entries[] = $entry;
 		return $this;
+	}
+	
+	/**
+	 * 
+	 * @param string $key
+	 * @return boolean
+	 */
+	public function remove($key){
+		foreach($this->entries as $index=>$entry){
+			if($entry->key == $key){
+				unset($this->entries[$idex]);
+				$this->entries = array_values($this->entries);
+				return true;
+			}
+		}
+		return false;
 	}
 }
