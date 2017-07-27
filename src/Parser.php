@@ -33,8 +33,8 @@ class Parser {
 				$dictionary = self::readObject($handle, $handle->readline());
 				if(!$dictionary instanceof Dictionary) throw new \Exception('Unexpected object expected Dictionary');
 				
-				foreach($dictionary->getEntries() as $entry){
-					$table->getDictionary()->set($entry->key, $entry->value);
+				foreach($dictionary as $key=>$value){
+					$table->getDictionary()->set($key, $value);
 				}
 				
 				break;

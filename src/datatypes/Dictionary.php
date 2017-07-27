@@ -1,7 +1,11 @@
 <?php
 namespace pdflib\datatypes;
 
-class Dictionary implements Object {
+/**
+ * 
+ * @author 10usb
+ */
+class Dictionary implements Object, \IteratorAggregate {
 	/**
 	 * 
 	 * @var array
@@ -29,11 +33,11 @@ class Dictionary implements Object {
 	}
 	
 	/**
-	 * 
-	 * @return array
+	 * {@inheritDoc}
+	 * @see \IteratorAggregate::getIterator()
 	 */
-	public function getEntries(){
-		return $this->entries;
+	public function getIterator(){
+		return new DictionaryIterator($this->entries);
 	}
 	
 	/**
