@@ -16,6 +16,12 @@ class Handle {
 	
 	/**
 	 * 
+	 * @var string|null
+	 */
+	private $initial;
+	
+	/**
+	 * 
 	 * @var unknown
 	 */
 	private $lineEnding;
@@ -27,9 +33,13 @@ class Handle {
 	public function __construct($name, $overwrite = false){
 		$this->handle		= fopen($name, $overwrite ? 'w+' : 'r+');
 		$this->offset		= 0;
+		$this->initial		= null;
 		$this->lineEnding	= "\n";
 	}
 	
+	/**
+	 * 
+	 */
 	public function __destruct(){
 		fclose($this->handle);
 	}
@@ -58,6 +68,16 @@ class Handle {
 	 */
 	public function setOffset($offset){
 		$this->offset = $offset;
+		return $this;
+	}
+	
+	/**
+	 * 
+	 * @param string $data
+	 * @return \pdflib\Handle
+	 */
+	public function setInitial($data){
+		$this->initial = $data;
 		return $this;
 	}
 	
@@ -120,6 +140,9 @@ class Handle {
 	 * @param string $data
 	 */
 	public function write($data){
+		if($this->initial !== null && ftell($this->handle) == $this->offset){
+			fwrite($this->handle, $this->initial);
+		}
 		fwrite($this->handle, $data);
 	}
 	
@@ -128,7 +151,7 @@ class Handle {
 	 * @param string $data
 	 */
 	public function writeline($data){
-		fwrite($this->handle, $data.$this->lineEnding);
+		$this->write($data.$this->lineEnding);
 	}
 	
 	/**
