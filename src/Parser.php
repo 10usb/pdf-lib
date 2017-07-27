@@ -43,6 +43,7 @@ class Parser {
 			}
 		}
 		
+		$table->finalize();
 		return $table;
 	}
 	

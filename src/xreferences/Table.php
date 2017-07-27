@@ -15,6 +15,12 @@ class Table {
 	private $dictionary;
 	
 	/**
+	 * 
+	 * @var string
+	 */
+	private $hash;
+	
+	/**
 	 *
 	 * @var \pdflib\references\Section[]
 	 */
@@ -31,8 +37,24 @@ class Table {
 	 */
 	public function __construct(){
 		$this->dictionary	= null;
+		$this->hash			= null;
 		$this->sections		= [];
 		$this->previous		= null;
+	}
+	
+	/**
+	 * 
+	 */
+	public function finalize(){
+		$this->hash = md5($this->getDictionary()->output());
+	}
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
+	public function isModified(){
+		return count($this->sections) > 0 || md5($this->getDictionary()->output()) != $this->hash;
 	}
 	
 	/**
@@ -73,6 +95,7 @@ class Table {
 			}else{
 				$this->dictionary = new Dictionary();
 			}
+			$this->finalize();
 		}
 		return $this->dictionary;
 	}
@@ -127,24 +150,26 @@ class Table {
 			$section->flush($handle);
 		}
 		
-		$handle->seek($handle->getOffset());
-		$startxref = $handle->tell();
-		$handle->writeline('xref');
-		foreach($this->sections as $section){
-			$handle->writeline(sprintf('%d %d', $section->getNumber(), $section->getSize()));
-			foreach($section->getEntries() as $entry){
-				$handle->writeline(substr(
-											sprintf('%010d %05d %s  ', $entry->getOffset(), $entry->getGeneration(), $entry->isUsed() ? 'n' : 'f'),
-											0,
-											20 - strlen($handle->getLineEnding())
-										));
+		if($this->isModified()){
+			$handle->seek($handle->getOffset());
+			$startxref = $handle->tell();
+			$handle->writeline('xref');
+			foreach($this->sections as $section){
+				$handle->writeline(sprintf('%d %d', $section->getNumber(), $section->getSize()));
+				foreach($section->getEntries() as $entry){
+					$handle->writeline(substr(
+												sprintf('%010d %05d %s  ', $entry->getOffset(), $entry->getGeneration(), $entry->isUsed() ? 'n' : 'f'),
+												0,
+												20 - strlen($handle->getLineEnding())
+											));
+				}
 			}
+			$handle->writeline('trailer');
+			$handle->writeline($this->getDictionary()->output());
+			$handle->writeline('startxref');
+			$handle->writeline($startxref);
+			$handle->write('%%EOF');
 		}
-		$handle->writeline('trailer');
-		$handle->writeline($this->getDictionary()->output());
-		$handle->writeline('startxref');
-		$handle->writeline($startxref);
-		$handle->write('%%EOF');
 	}
 	
 	/**
