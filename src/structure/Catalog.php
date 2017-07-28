@@ -18,7 +18,23 @@ class Catalog {
 	 * @param \pdflib\xreferences\FileIO $io
 	 */
 	public function __construct($io){
-		$this->io	= $io;
+		$this->io		= $io;
+	}
+	
+	/**
+	 * 
+	 * @param unknown $width
+	 * @param unknown $height
+	 * @return \pdflib\structure\Catalog
+	 */
+	public function setSize($width, $height){
+		$box = new Collection();
+		$box->push(new Number(0));
+		$box->push(new Number(0));
+		$box->push(new Number($width));
+		$box->push(new Number($height));
+		$this->io->setDefault('MediaBox', $box);
+		return $this;
 	}
 	
 	/**
@@ -27,6 +43,8 @@ class Catalog {
 	 * @return \pdflib\structure\Page
 	 */
 	public function addPage($before = null){
+		if(!$this->io->getDefault('MediaBox')) throw new \Exception('No default size set for new pages');
+		
 		$root = $this->getRoot();
 		
 		$reference = $root->get('Pages');
@@ -44,20 +62,14 @@ class Catalog {
 		$object->set('Type', new Name('Page'));
 		$object->set('Parent', $reference);
 		$object->set('Resources', new Dictionary());
-		
-		$object->set('MediaBox', $mediaBox = new Collection());
-			$mediaBox->push(new Number(0));
-			$mediaBox->push(new Number(0));
-			$mediaBox->push(new Number(300));
-			$mediaBox->push(new Number(400));
-		
+		$object->set('MediaBox', clone $this->io->getDefault('MediaBox'));
 		
 		$reference = $this->io->allocate($object);
 		$pages->get('Kids')->push($reference);
 		
 		$pages->set('Count', new Number($pages->get('Count')->getValue() + 1));
 		
-		return new Page($this->io, $this->io->getIndirect($reference)->getObject());
+		return new Page($this->io, $this->io->getIndirect($reference));
 	}
 	
 	/**

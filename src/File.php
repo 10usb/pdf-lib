@@ -33,6 +33,12 @@ class File {
 	
 	/**
 	 * 
+	 * @var \stdClass
+	 */
+	private $defaults;
+	
+	/**
+	 * 
 	 * @param string $filename
 	 */
 	public function __construct($name = 'php://temp'){
@@ -41,6 +47,7 @@ class File {
 		$this->offset		= 0;
 		$this->xreference	= new Table();
 		$this->xreference->addSection(0)->add(0, 65535, null);
+		$this->defaults		= new \stdClass();
 	}
 	
 	/**
@@ -109,7 +116,7 @@ class File {
 	 * @return \pdflib\structure\Information
 	 */
 	public function getInformation(){
-		return new Information(new FileIO($this->xreference, $this->handle));
+		return new Information(new FileIO($this->xreference, $this->handle, $this->defaults));
 	}
 	
 	/**
@@ -117,6 +124,6 @@ class File {
 	 * @return \pdflib\structure\Catalog
 	 */
 	public function getCatalog(){
-		return new Catalog(new FileIO($this->xreference, $this->handle));
+		return new Catalog(new FileIO($this->xreference, $this->handle, $this->defaults));
 	}
 }

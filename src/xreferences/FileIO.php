@@ -18,12 +18,39 @@ class FileIO {
 	
 	/**
 	 *
+	 * @var \stdClass
+	 */
+	private $defaults;
+	
+	/**
+	 *
 	 * @param \pdflib\xreferences\Table $table
 	 * @param \pdflib\Handle $handle
 	 */
-	public function __construct($table, $handle){
+	public function __construct($table, $handle, $defaults){
 		$this->table	= $table;
 		$this->handle	= $handle;
+		$this->defaults	= $defaults;
+	}
+	
+	/**
+	 *
+	 * @param string $name
+	 * @return mixed
+	 */
+	public function getDefault($name){
+		return $this->defaults->{$name};
+	}
+	
+	/**
+	 *
+	 * @param string $name
+	 * @param mixed $value
+	 * @return \pdflib\structure\FileIO
+	 */
+	public function setDefault($name, $value){
+		$this->defaults->{$name} = $value;
+		return $this;
 	}
 	
 	/**

@@ -17,6 +17,11 @@ class Collection implements Object {
 		return '['.implode(' ', $outputs).']';
 	}
 	
+	public function get($index){
+		if(!isset($this->values[$index])) throw new \Exception('Index out of bound');
+		return $this->values[$index];
+	}
+	
 	public function push($value){
 		if($value instanceof Object){
 			$this->values[] = $value;

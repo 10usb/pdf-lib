@@ -10,18 +10,18 @@ class Page {
 	private $io;
 	/**
 	 *
-	 * @var \pdflib\xreferences\FileIO
+	 * @var \pdflib\datatypes\Indirect
 	 */
-	private $data;
+	private $indirect;
 	
 	/**
 	 * 
 	 * @param \pdflib\xreferences\FileIO $io
-	 * @param \pdflib\datatypes\Dictionary $data
+	 * @param \pdflib\datatypes\Indirect $data
 	 */
-	public function __construct($io, $data){
-		$this->io	= $io;
-		$this->data	= $data;
+	public function __construct($io, $indirect){
+		$this->io		= $io;
+		$this->indirect	= $indirect;
 	}
 	
 	/**
@@ -29,7 +29,8 @@ class Page {
 	 * @return number
 	 */
 	public function getWidth(){
-		return 300;
+		$box = $this->indirect->getObject()->get('MediaBox');
+		return $box->get(2)->getValue();
 	}
 	
 	/**
@@ -37,7 +38,8 @@ class Page {
 	 * @return number
 	 */
 	public function getHeight(){
-		return 400;
+		$box = $this->indirect->getObject()->get('MediaBox');
+		return $box->get(3)->getValue();
 	}
 	
 	/**
@@ -45,10 +47,10 @@ class Page {
 	 * @return \pdflib\structure\Canvas
 	 */
 	public function getCanvas(){
-		$reference = $this->data->get('Contents');
+		$reference = $this->indirect->getObject()->get('Contents');
 		if(!$reference){
 			$reference = $this->io->allocateStream();
-			$this->data->set('Contents', $reference);
+			$this->indirect->getObject()->set('Contents', $reference);
 		}
 		
 		$stream = $this->io->getIndirect($reference);
