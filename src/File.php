@@ -2,7 +2,9 @@
 namespace pdflib;
 
 use pdflib\xreferences\Table;
+use pdflib\xreferences\FileIO;
 use pdflib\structure\Information;
+use pdflib\structure\Catalog;
 
 class File {
 	/**
@@ -104,15 +106,17 @@ class File {
 	
 	/**
 	 * 
-	 * 
 	 * @return \pdflib\structure\Information
 	 */
 	public function getInformation(){
-		return new Information($this->xreference, $this->handle);
+		return new Information(new FileIO($this->xreference, $this->handle));
 	}
 	
-	
+	/**
+	 * 
+	 * @return \pdflib\structure\Catalog
+	 */
 	public function getCatalog(){
-		return new Catalog($this->xreference, $this->handle);
+		return new Catalog(new FileIO($this->xreference, $this->handle));
 	}
 }

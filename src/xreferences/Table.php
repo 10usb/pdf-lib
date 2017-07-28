@@ -6,6 +6,7 @@ use pdflib\datatypes\Reference;
 use pdflib\datatypes\Indirect;
 use pdflib\datatypes\Referenceable;
 use pdflib\datatypes\Number;
+use pdflib\datatypes\Stream;
 
 class Table {
 	
@@ -204,6 +205,7 @@ class Table {
 	/**
 	 * 
 	 * @param \pdflib\datatypes\Object $object
+	 * @return \pdflib\datatypes\Reference
 	 */
 	public function allocate($object){
 		$section = $this->sections[0];
@@ -216,11 +218,27 @@ class Table {
 	
 	/**
 	 * 
+	 * @return \pdflib\datatypes\Reference
+	 */
+	public function allocateStream(){
+		$section = $this->sections[0];
+		
+		$indirect = new Stream($section->getNumber() + $section->getSize(), 0);
+		$this->sections[0]->add(0, $indirect->getGeneration(), true, $indirect);
+		
+		return new Reference($indirect->getNumber(), $indirect->getGeneration());
+	}
+	
+	/**
+	 * 
+	 * @param \pdflib\Handle $handle
 	 * @param \pdflib\datatypes\Referenceable $reference
+	 * @return \pdflib\datatypes\Indirect|null
 	 */
 	public function getIndirect($handle, $reference){
 		if(!$reference instanceof Referenceable) throw new \Exception('Unexpected value expected Reference');
 		
+		/** @var Section $section */
 		foreach($this->sections as $section){
 			if($section->contains($reference)){
 				return $section->getIndirect($handle, $reference);

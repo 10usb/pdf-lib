@@ -13,4 +13,8 @@ class Number implements Object {
 	public function output(){
 		return $this->value;
 	}
+	
+	public function getValue(){
+		return $this->value;
+	}
 }

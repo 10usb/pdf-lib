@@ -53,8 +53,10 @@ class Section {
 	}
 	
 	/**
-	 *
+	 * 
+	 * @param \pdflib\Handle $handle
 	 * @param \pdflib\datatypes\Referenceable $reference
+	 * @return NULL|\pdflib\datatypes\Indirect|null
 	 */
 	public function getIndirect($handle, $reference){
 		if(!$this->contains($reference)) return null;
@@ -62,6 +64,11 @@ class Section {
 		return $this->entries[$reference->getNumber() - $this->number]->getIndirect($handle);
 	}
 	
+	/**
+	 * 
+	 * @param \pdflib\datatypes\Referenceable $referenable
+	 * @return boolean
+	 */
 	public function canAppend($referenable){
 		return $referenable->getNumber() == ($this->number + count($this->entries));
 	}

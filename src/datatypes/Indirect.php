@@ -27,7 +27,7 @@ class Indirect implements Referenceable {
 	}
 	
 	public function getBody(){
-		return $this->object->output();
+		return [$this->object->output()];
 	}
 	
 	public function isModified(){

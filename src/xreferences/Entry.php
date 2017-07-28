@@ -100,7 +100,7 @@ class Entry {
 		
 		$this->offset = $handle->tell();
 		$handle->writeline(sprintf('%d %d obj', $this->indirect->getNumber(), $this->indirect->getGeneration()));
-		$handle->writeline($this->indirect->getBody());
+		foreach($this->indirect->getBody() as $line) $handle->writeline($line);
 		$handle->writeline('endobj');
 		$handle->writeline('');
 		$handle->setOffset($handle->tell());

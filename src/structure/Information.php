@@ -7,24 +7,16 @@ use pdflib\datatypes\Text;
 class Information {
 	/**
 	 * 
-	 * @var \pdflib\xreferences\Table
+	 * @var \pdflib\xreferences\FileIO
 	 */
-	private $table;
+	private $io;
 	
 	/**
 	 * 
-	 * @var \pdflib\Handle
+	 * @param \pdflib\xreferences\FileIO $io
 	 */
-	private $handle;
-	
-	/**
-	 * 
-	 * @param \pdflib\xreferences\Table $table
-	 * @param \pdflib\Handle $handle
-	 */
-	public function __construct($table, $handle){
-		$this->table	= $table;
-		$this->handle	= $handle;
+	public function __construct($io){
+		$this->io	= $io;
 	}
 	
 	/**
@@ -173,15 +165,12 @@ class Information {
 	/**
 	 * 
 	 * @param string $name
-	 * @return string
+	 * @return string|boolean
 	 */
 	private function getValue($name){
 		$reference = $this->table->getDictionary()->get('Info');
 		
-		if(!$reference){
-			$reference = $this->table->allocate(new Dictionary());
-			$this->table->getDictionary()->set('Info', $reference);
-		}
+		if(!$reference) return false;
 		
 		$indirect = $this->table->getIndirect($this->handle, $reference);
 		return $indirect->getObject()->get($name, $value);
@@ -193,14 +182,14 @@ class Information {
 	 * @param string $value
 	 */
 	private function setValue($name, $value){
-		$reference = $this->table->getDictionary()->get('Info');
+		$reference = $this->io->getValue('Info');
 		
 		if(!$reference){
-			$reference = $this->table->allocate(new Dictionary());
-			$this->table->getDictionary()->set('Info', $reference);
+			$reference = $this->io->allocate(new Dictionary());
+			$this->io->setValue('Info', $reference);
 		}
 		
-		$indirect = $this->table->getIndirect($this->handle, $reference);
+		$indirect = $this->io->getIndirect($reference);
 		if($value === false){
 			$indirect->getObject()->remove($name);
 		}else{
