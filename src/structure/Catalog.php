@@ -61,7 +61,13 @@ class Catalog {
 		$object = new Dictionary();
 		$object->set('Type', new Name('Page'));
 		$object->set('Parent', $reference);
-		$object->set('Resources', new Dictionary());
+		$object->set('Resources', $resouces = new Dictionary());
+		$resouces->set('ProcSet', $procSet = new Collection());
+		$procSet->push(new Name('PDF'));
+		$procSet->push(new Name('Text'));
+		$procSet->push(new Name('ImageB'));
+		$procSet->push(new Name('ImageC'));
+		$procSet->push(new Name('ImageI'));
 		$object->set('MediaBox', clone $this->io->getDefault('MediaBox'));
 		
 		$reference = $this->io->allocate($object);

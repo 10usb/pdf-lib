@@ -1,8 +1,11 @@
 <?php
 namespace pdflib\structure;
 
+use pdflib\datatypes\Referenceable;
+use pdflib\datatypes\Dictionary;
+use pdflib\datatypes\Name;
 
-class Page {
+class Page implements Referenceable {
 	/**
 	 *
 	 * @var \pdflib\xreferences\FileIO
@@ -22,6 +25,24 @@ class Page {
 	public function __construct($io, $indirect){
 		$this->io		= $io;
 		$this->indirect	= $indirect;
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \pdflib\datatypes\Referenceable::getNumber()
+	 */
+	public function getNumber(){
+		return $this->indirect->getNumber();
+	}
+	
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * @see \pdflib\datatypes\Referenceable::getGeneration()
+	 */
+	public function getGeneration(){
+		return $this->indirect->getGeneration();
 	}
 	
 	/**
@@ -56,5 +77,40 @@ class Page {
 		$stream = $this->io->getIndirect($reference);
 		
 		return new Canvas($this->getWidth(), $this->getHeight(), $stream);
+	}
+	
+	/**
+	 * 
+	 * @param string $name
+	 * @param number $size
+	 * @return \pdflib\structure\Font
+	 */
+	public function getFont($name, $size){
+		// TODO search already used fonts
+		// TODO search cache file cache
+		// TODO search catalog
+		
+		$object = new Dictionary();
+		$object->set('Type', new Name('Font'));
+		$object->set('BaseFont', new Name($name));
+		$object->set('Subtype', new Name('Type1'));
+		$object->set('Encoding', new Name('WinAnsiEncoding'));
+		$reference = $this->io->allocate($object);
+		
+		$resources = $this->indirect->getObject()->get('Resources');
+		if(!$font = $resources->get('Font')){
+			$resources->set('Font', $font = new Dictionary());
+		}
+		
+		$index = 1;
+		do {
+			if(!$font->get('F'.$index)){
+				$localName = new Name('F'.$index);
+				$font->set($localName, $reference);
+				return new Font($reference, $localName, $size);
+			}
+		}while($index++ < 100);
+		
+		throw new \Exception('Failed to create a local name for the font');
 	}
 }

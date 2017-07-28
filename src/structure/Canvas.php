@@ -69,6 +69,17 @@ class Canvas {
 	 */
 	public function line($x1, $y1, $x2, $y2){
 		$this->stream->append(sprintf("%.2F %.2F m %.2F %.2F l S\n", $x1, $this->height - $y1, $x2, $this->height - $y2));
+		return $this;
+	}
+	
+	/**
+	 * 
+	 * @param \pdflib\structure\Font $font
+	 * @return \pdflib\structure\Canvas
+	 */
+	public function setFont($font){
+		$this->stream->append(sprintf("BT %s %.2F Tf ET\n", $font->getLocalName()->output(), $font->getSize()));
+		return $this;
 	}
 	
 	/**
