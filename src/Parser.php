@@ -8,6 +8,8 @@ use pdflib\datatypes\Reference;
 use pdflib\datatypes\Indirect;
 use pdflib\datatypes\Text;
 use pdflib\datatypes\Number;
+use pdflib\datatypes\Collection;
+use pdflib\datatypes\Nil;
 
 class Parser {
 	/**
@@ -76,12 +78,12 @@ class Parser {
 	 * @return \pdflib\datatypes\Object
 	 */
 	public static function readObject($handle, $buffer, &$offset = 0){
-		if(preg_match('/^\<\<\\s*/', substr($buffer, $offset), $matches)){
+		if(preg_match('/^\<\<\s*/', substr($buffer, $offset), $matches)){
 			$offset+= strlen($matches[0]);
 			
 			$dictionary = new Dictionary();
 			
-			while(!preg_match('/^\>\>/', substr($buffer, $offset), $matches)){
+			while(!preg_match('/^\>\>\s*/', substr($buffer, $offset), $matches)){
 				$key = self::readObject($handle, $buffer, $offset);
 				if(!$key instanceof Name) throw new \Exception('Unexpected object expected Name');
 				
@@ -94,8 +96,26 @@ class Parser {
 					$offset = 0;
 				}
 			}
-			
+			$offset+= strlen($matches[0]);
 			return $dictionary;
+		}elseif(preg_match('/^\[\s*/', substr($buffer, $offset), $matches)){
+			$offset+= strlen($matches[0]);
+			
+			$collection = new Collection();
+			
+			while(!preg_match('/^\]\s*/', substr($buffer, $offset), $matches)){
+				$value = self::readObject($handle, $buffer, $offset);
+				
+				$collection->push($value);
+				
+				if($offset >= strlen($buffer)){
+					$buffer = $handle->readline();
+					$offset = 0;
+				}
+			}
+			
+			$offset+= strlen($matches[0]);
+			return $collection;
 		}elseif(preg_match('/^\/([^\s\(\)\<\>\[\]\{\}\/\%\#]+)\s*/', substr($buffer, $offset), $matches)){
 			$offset+= strlen($matches[0]);
 			return new Name(preg_replace_callback('/#[0-9a-f]{2}/i', function($matches){
@@ -123,6 +143,10 @@ class Parser {
 			$offset+= strlen($matches[0]);
 			
 			return new Number($matches[1]);
+		}elseif(preg_match('/^null\s*/', substr($buffer, $offset), $matches)){
+			$offset+= strlen($matches[0]);
+			
+			return new Nil();
 		}
 		
 		echo ":(\n";

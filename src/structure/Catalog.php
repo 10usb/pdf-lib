@@ -89,10 +89,10 @@ class Catalog {
 	/**
 	 * 
 	 * @param integer $index
-	 * @return \pdflib\structure\Page
+	 * @return \pdflib\structure\Page|boolean
 	 */
 	public function getPage($index){
-		return new Page();
+		return false;
 	}
 	
 	/**

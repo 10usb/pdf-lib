@@ -208,7 +208,8 @@ class Table {
 	 * @return \pdflib\datatypes\Reference
 	 */
 	public function allocate($object){
-		$section = $this->sections[0];
+		if(!$this->sections) $this->addSection($this->getSize());
+		$section = end($this->sections);
 		
 		$indirect = new Indirect($section->getNumber() + $section->getSize(), 0, $object);
 		$this->sections[0]->add(0, $indirect->getGeneration(), true, $indirect);
@@ -221,7 +222,8 @@ class Table {
 	 * @return \pdflib\datatypes\Reference
 	 */
 	public function allocateStream(){
-		$section = $this->sections[0];
+		if(!$this->sections) $this->addSection($this->getSize());
+		$section = end($this->sections);
 		
 		$indirect = new Stream($section->getNumber() + $section->getSize(), 0);
 		$this->sections[0]->add(0, $indirect->getGeneration(), true, $indirect);
