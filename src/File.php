@@ -5,6 +5,7 @@ use pdflib\xreferences\Table;
 use pdflib\xreferences\FileIO;
 use pdflib\structure\Information;
 use pdflib\structure\Catalog;
+use pdflib\structure\ResourceManager;
 
 class File {
 	/**
@@ -32,22 +33,29 @@ class File {
 	private $xreference;
 	
 	/**
-	 * 
+	 *
 	 * @var \stdClass
 	 */
 	private $defaults;
+	
+	/**
+	 *
+	 * @var \stdClass
+	 */
+	private $resourceManager;
 	
 	/**
 	 * 
 	 * @param string $filename
 	 */
 	public function __construct($name = 'php://temp'){
-		$this->name			= $name;
-		$this->handle		= null;
-		$this->offset		= 0;
-		$this->xreference	= new Table();
+		$this->name				= $name;
+		$this->handle			= null;
+		$this->offset			= 0;
+		$this->xreference		= new Table();
 		$this->xreference->addSection(0)->add(0, 65535, null);
-		$this->defaults		= new \stdClass();
+		$this->defaults			= new \stdClass();
+		$this->resourceManager	= null;
 	}
 	
 	/**
@@ -120,10 +128,16 @@ class File {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @return \pdflib\structure\Catalog
 	 */
 	public function getCatalog(){
-		return new Catalog(new FileIO($this->xreference, $this->handle, $this->defaults));
+		$io = new FileIO($this->xreference, $this->handle, $this->defaults);
+		
+		if(!$this->resourceManager){
+			$this->resourceManager = new ResourceManager($io);
+		}
+		
+		return new Catalog($io, $this->resourceManager);
 	}
 }

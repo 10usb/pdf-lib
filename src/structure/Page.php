@@ -4,6 +4,7 @@ namespace pdflib\structure;
 use pdflib\datatypes\Referenceable;
 use pdflib\datatypes\Dictionary;
 use pdflib\datatypes\Name;
+use pdflib\datatypes\Reference;
 
 class Page implements Referenceable {
 	/**
@@ -18,13 +19,21 @@ class Page implements Referenceable {
 	private $indirect;
 	
 	/**
+	 *
+	 * @var \pdflib\structure\ResourceManager
+	 */
+	private $resourceManager;
+	
+	/**
 	 * 
 	 * @param \pdflib\xreferences\FileIO $io
 	 * @param \pdflib\datatypes\Indirect $data
+	 * @param \pdflib\structure\ResourceManager $resourceManager
 	 */
-	public function __construct($io, $indirect){
-		$this->io		= $io;
-		$this->indirect	= $indirect;
+	public function __construct($io, $indirect, $resourceManager){
+		$this->io				= $io;
+		$this->indirect			= $indirect;
+		$this->resourceManager	= $resourceManager;
 	}
 	
 	/**
@@ -86,31 +95,14 @@ class Page implements Referenceable {
 	 * @return \pdflib\structure\Font
 	 */
 	public function getFont($name, $size){
-		// TODO search already used fonts
-		// TODO search cache file cache
-		// TODO search catalog
-		
-		$object = new Dictionary();
-		$object->set('Type', new Name('Font'));
-		$object->set('BaseFont', new Name($name));
-		$object->set('Subtype', new Name('Type1'));
-		$object->set('Encoding', new Name('WinAnsiEncoding'));
-		$reference = $this->io->allocate($object);
-		
 		$resources = $this->indirect->getObject()->get('Resources');
-		if(!$font = $resources->get('Font')){
-			$resources->set('Font', $font = new Dictionary());
+		if(!$dictionary = $resources->get('Font')){
+			$resources->set('Font', $dictionary= new Dictionary());
 		}
 		
-		$index = 1;
-		do {
-			if(!$font->get('F'.$index)){
-				$localName = new Name('F'.$index);
-				$font->set($localName, $reference);
-				return new Font($reference, $localName, $size);
-			}
-		}while($index++ < 100);
+		$reference = $this->resourceManager->getFont($name);
+		$localName = $this->resourceManager->getFontLocalName($dictionary, $reference);
 		
-		throw new \Exception('Failed to create a local name for the font');
+		return new Font($reference, $localName, $size);
 	}
 }

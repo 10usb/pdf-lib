@@ -14,11 +14,19 @@ class Catalog {
 	private $io;
 	
 	/**
-	 *
-	 * @param \pdflib\xreferences\FileIO $io
+	 * 
+	 * @var \pdflib\structure\ResourceManager
 	 */
-	public function __construct($io){
-		$this->io		= $io;
+	private $resourceManager;
+	
+	/**
+	 * 
+	 * @param \pdflib\xreferences\FileIO $io
+	 * @param \pdflib\structure\ResourceManager $resourceManager
+	 */
+	public function __construct($io, $resourceManager){
+		$this->io				= $io;
+		$this->resourceManager	= $resourceManager;
 	}
 	
 	/**
@@ -75,7 +83,7 @@ class Catalog {
 		
 		$pages->set('Count', new Number($pages->get('Count')->getValue() + 1));
 		
-		return new Page($this->io, $this->io->getIndirect($reference));
+		return new Page($this->io, $this->io->getIndirect($reference), $this->resourceManager);
 	}
 	
 	/**
@@ -93,7 +101,6 @@ class Catalog {
 	 */
 	private function getRoot(){
 		$reference = $this->io->getValue('Root');
-		
 		
 		if(!$reference){
 			$object = new Dictionary();
