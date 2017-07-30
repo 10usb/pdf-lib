@@ -142,6 +142,7 @@ class Handle {
 	public function write($data){
 		if($this->initial !== null && ftell($this->handle) == $this->offset){
 			fwrite($this->handle, $this->initial);
+			$this->initial = null;
 		}
 		fwrite($this->handle, $data);
 	}

@@ -161,7 +161,6 @@ class ResourceManager {
 		if($resources instanceof Referenceable){
 			$this->extract($this->io->getIndirect($resources)->getObject());
 		}else{
-			echo $resources->output()."\n";
 			$fonts = $resources->get('Font');
 			if($fonts){
 				foreach ($fonts as $localName=>$reference){
