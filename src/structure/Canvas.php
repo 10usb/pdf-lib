@@ -93,13 +93,13 @@ class Canvas {
 	
 	/**
 	 * 
-	 * @param \pdflib\structure\Image $image
 	 * @param number $x
 	 * @param number $y
 	 * @param number $w
 	 * @param number $h
+	 * @param \pdflib\structure\Image $image
 	 */
-	public function image($image, $x, $y, $w, $h){
+	public function image($x, $y, $w, $h, $image){
 		$this->stream->append(sprintf("q %.2F 0 0 %.2F %.2F %.2F cm %s Do Q\n", $w, $h, $x, $this->height - ($y + $h), $image->getLocalName()->output()));
 	}
 	

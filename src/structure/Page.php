@@ -5,6 +5,8 @@ use pdflib\datatypes\Referenceable;
 use pdflib\datatypes\Dictionary;
 use pdflib\datatypes\Name;
 use pdflib\datatypes\Reference;
+use pdflib\datatypes\Collection;
+use pdflib\datatypes\Number;
 
 class Page implements Referenceable {
 	/**
@@ -52,6 +54,22 @@ class Page implements Referenceable {
 	 */
 	public function getGeneration(){
 		return $this->indirect->getGeneration();
+	}
+	
+	/**
+	 * 
+	 * @param unknown $width
+	 * @param unknown $height
+	 * @return \pdflib\structure\Page
+	 */
+	public function setSize($width = null, $height = null){
+		$box = new Collection();
+		$box->push(new Number(0));
+		$box->push(new Number(0));
+		$box->push(new Number($width === null ? $this->getWidth() : $width));
+		$box->push(new Number($height === null? $this->getHeight() : $height));
+		$this->indirect->getObject()->set('MediaBox', $box);
+		return $this;
 	}
 	
 	/**
