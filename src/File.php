@@ -55,7 +55,9 @@ class File {
 		$this->xreference		= new Table();
 		$this->xreference->addSection(0)->add(0, 65535, null);
 		$this->defaults			= new \stdClass();
+		$this->defaults->Fonts	= realpath(__DIR__.'/../data/defaults.json');
 		$this->resourceManager	= null;
+		
 	}
 	
 	/**

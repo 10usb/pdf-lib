@@ -21,4 +21,10 @@ class Reference implements Object, Referenceable {
 	public function getGeneration(){
 		return $this->generation;
 	}
+	
+	public static function get($referencaable){
+		if(!$referencaable instanceof Reference) return $referencaable;
+		if(!$referencaable instanceof Referenceable) throw new \Exception('Instance if not type Referenceable');
+		return new Reference($referencaable->getNumber(), $referencaable->getGeneration());
+	}
 }

@@ -104,6 +104,6 @@ class Page implements Referenceable {
 		$reference = $this->resourceManager->getFont($name);
 		$localName = $this->resourceManager->getFontLocalName($dictionary, $reference);
 		
-		return new Font($reference, $localName, $size);
+		return new Font($this->resourceManager, $reference, $localName, $size);
 	}
 }

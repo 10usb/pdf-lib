@@ -6,6 +6,12 @@ use pdflib\datatypes\Referenceable;
 class Font implements Referenceable {
 	/**
 	 *
+	 * @var \pdflib\structure\ResourceManager
+	 */
+	private $resourceManager;
+	
+	/**
+	 *
 	 * @var \pdflib\datatypes\Referenceable
 	 */
 	private $reference;
@@ -23,14 +29,17 @@ class Font implements Referenceable {
 	private $size;
 	
 	/**
-	 *
-	 * @param \pdflib\xreferences\FileIO $io
-	 * @param \pdflib\datatypes\Indirect $data
+	 * 
+	 * @param \pdflib\structure\ResourceManager $resourceManager
+	 * @param \pdflib\datatypes\Referenceable $reference
+	 * @param \pdflib\datatypes\Name $localName
+	 * @param number $size
 	 */
-	public function __construct($reference, $localName, $size){
-		$this->reference	= $reference;
-		$this->localName	= $localName;
-		$this->size			= $size;
+	public function __construct($resourceManager, $reference, $localName, $size){
+		$this->resourceManager	= $resourceManager;
+		$this->reference		= $reference;
+		$this->localName		= $localName;
+		$this->size				= $size;
 	}
 	
 	/**
@@ -65,5 +74,14 @@ class Font implements Referenceable {
 	 */
 	public function getSize(){
 		return $this->size;
+	}
+	
+	/**
+	 * 
+	 * @param string $text
+	 * @return number
+	 */
+	public function getTextWith($text){
+		return $this->resourceManager->getFontTextWidth($this->reference, $text) * $this->size;
 	}
 }

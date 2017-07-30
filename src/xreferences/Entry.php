@@ -90,10 +90,8 @@ class Entry {
 	 * @param \pdflib\Handle $handle
 	 */
 	public function flush($handle){
-		// Not goog enough :'(
-		if($this->offset > 0) return false;
 		if(!$this->indirect) return false;
-		//isModified()
+		if(!($this->offset <= 0 || $this->indirect->isModified())) return false;
 		
 		
 		$handle->seek($handle->getOffset());
@@ -103,6 +101,16 @@ class Entry {
 		foreach($this->indirect->getBody() as $line) $handle->writeline($line);
 		$handle->writeline('endobj');
 		$handle->writeline('');
+		
 		$handle->setOffset($handle->tell());
+		
+		// Clean up memory on flush
+		ob_start();
+		debug_zval_dump($this->indirect);
+		$contents = ob_get_contents();
+		ob_end_clean();
+		if(preg_match('/(.+?)\((.+?)\)\#(\d+)\s*\((\d+)\)\s*refcount\((\d+)\)/i', $contents, $matches)){
+			if($matches[5] <= 2) $this->indirect = null;
+		}
 	}
 }

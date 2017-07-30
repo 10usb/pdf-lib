@@ -50,19 +50,23 @@ class ResourceManager {
 			}
 		}
 		
-		$font = new \stdClass();
-		$font->name			= $name;
-		$font->localNames	= [];
-		
-		$object = new Dictionary();
-		$object->set('Type', new Name('Font'));
-		$object->set('BaseFont', new Name($name));
-		$object->set('Subtype', new Name('Type1'));
-		$object->set('Encoding', new Name('WinAnsiEncoding'));
-		$font->reference = $this->io->allocate($object);
-		$this->fonts[] = $font;
-		
-		return $font->reference;
+		$fonts = json_decode(file_get_contents($this->io->getDefault('Fonts')));
+		foreach($fonts as $font){
+			if($font->name==$name){
+				$object = new Dictionary();
+				$object->set('Type', new Name('Font'));
+				$object->set('BaseFont', new Name($name));
+				$object->set('Subtype', new Name('Type1'));
+				$object->set('Encoding', new Name('WinAnsiEncoding'));
+				$reference = $this->io->allocate($object);
+				
+				$font->localNames	= [];
+				$font->reference	= $reference;
+				$this->fonts[] 		= $font;
+				return $reference;
+			}
+		}
+		throw new \Exception('Font not in repository');
 	}
 	
 	/**
@@ -79,7 +83,10 @@ class ResourceManager {
 			}
 		}
 		
+		// Get cached font
 		$font = $this->getByReference($reference);
+		if(!$font) throw new \Exception('Failed to load font');
+		
 		// Lets see if the already used names can be used
 		foreach($font->localNames as $localName){
 			if(!$dictionary->get($localName)){
@@ -99,8 +106,25 @@ class ResourceManager {
 			}
 		}while($index++ < 100);
 		
+		throw new \Exception('Failed to generate new font name');
+	}
+	
+	/**
+	 * 
+	 * @param  \pdflib\datatypes\Referenceable $reference
+	 * @param string $text
+	 * @return number
+	 */
+	public function getFontTextWidth($reference, $text){
+		$font = $this->getByReference($reference);
 		
-		return new Name('');
+		$width = 0;
+		for($index = 0; isset($text[$index]); $index++){
+			$charValue = ord($text[$index]);
+			$width+= $font->widths[$charValue];
+		}
+		
+		return $width / 1000;
 	}
 	
 	/**
@@ -117,8 +141,10 @@ class ResourceManager {
 		return false;
 	}
 	
-	
-	
+	/**
+	 * 
+	 * @param \pdflib\datatypes\Dictionary $branch
+	 */
 	private function search($branch){
 		foreach($branch->get('Kids') as $reference){
 			$child = $this->io->getIndirect($reference)->getObject();
@@ -127,6 +153,10 @@ class ResourceManager {
 		}
 	}
 	
+	/**
+	 * 
+	 * @param \pdflib\datatypes\Dictionary|\pdflib\datatypes\Referenceable $resources
+	 */
 	private function extract($resources){
 		if($resources instanceof Referenceable){
 			$this->extract($this->io->getIndirect($resources)->getObject());
