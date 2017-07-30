@@ -96,7 +96,7 @@ class FileIO {
 	 *
 	 * @return \pdflib\datatypes\Reference
 	 */
-	public function allocateStream(){
-		return $this->table->allocateStream();
+	public function allocateStream($object = null){
+		return $this->table->allocateStream($object);
 	}
 }

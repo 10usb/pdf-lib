@@ -89,7 +89,7 @@ class Page implements Referenceable {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param string $name
 	 * @param number $size
 	 * @return \pdflib\structure\Font
@@ -105,5 +105,24 @@ class Page implements Referenceable {
 		$localName = $this->resourceManager->getFontLocalName($dictionary, $reference);
 		
 		return new Font($this->resourceManager, $reference, $localName, $size);
+	}
+	
+	/**
+	 *
+	 * @param string $name
+	 * @param number $size
+	 * @return \pdflib\structure\Image
+	 */
+	public function getImage($path){
+		$resources = $this->indirect->getObject()->get('Resources');
+		// TODO if no Resource check parents, otherwise throw exception
+		if(!$dictionary = $resources->get('XObject')){
+			$resources->set('XObject', $dictionary= new Dictionary());
+		}
+		
+		$reference = $this->resourceManager->getImage($path);
+		$localName = $this->resourceManager->getImageLocalName($dictionary, $reference);
+		
+		return new Image($this->resourceManager, $reference, $localName);
 	}
 }

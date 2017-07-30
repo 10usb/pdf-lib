@@ -221,11 +221,15 @@ class Table {
 	 * 
 	 * @return \pdflib\datatypes\Reference
 	 */
-	public function allocateStream(){
+	public function allocateStream($object = null){
 		if(!$this->sections) $this->addSection($this->getSize());
 		$section = end($this->sections);
 		
-		$indirect = new Stream($section->getNumber() + $section->getSize(), 0);
+		if($object){
+			$indirect = new Stream($section->getNumber() + $section->getSize(), 0, $object);
+		}else{
+			$indirect = new Stream($section->getNumber() + $section->getSize(), 0);
+		}
 		$this->sections[0]->add(0, $indirect->getGeneration(), true, $indirect);
 		
 		return new Reference($indirect->getNumber(), $indirect->getGeneration());

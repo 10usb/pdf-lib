@@ -5,6 +5,7 @@ use pdflib\datatypes\Name;
 use pdflib\datatypes\Dictionary;
 use pdflib\datatypes\Reference;
 use pdflib\datatypes\Referenceable;
+use pdflib\datatypes\Number;
 
 class ResourceManager {
 	/**
@@ -14,10 +15,16 @@ class ResourceManager {
 	private $io;
 	
 	/**
-	 * 
+	 *
 	 * @var array
 	 */
 	private $fonts;
+	
+	/**
+	 *
+	 * @var array
+	 */
+	private $images;
 	
 	/**
 	 * 
@@ -26,6 +33,7 @@ class ResourceManager {
 	public function __construct($io){
 		$this->io		= $io;
 		$this->fonts	= [];
+		$this->images	= [];
 		
 		$reference = $this->io->getValue('Root');
 		if($reference){
@@ -84,7 +92,7 @@ class ResourceManager {
 		}
 		
 		// Get cached font
-		$font = $this->getByReference($reference);
+		$font = $this->getFontByReference($reference);
 		if(!$font) throw new \Exception('Failed to load font');
 		
 		// Lets see if the already used names can be used
@@ -116,7 +124,7 @@ class ResourceManager {
 	 * @return number
 	 */
 	public function getFontTextWidth($reference, $text){
-		$font = $this->getByReference($reference);
+		$font = $this->getFontByReference($reference);
 		
 		$width = 0;
 		for($index = 0; isset($text[$index]); $index++){
@@ -127,13 +135,158 @@ class ResourceManager {
 		return $width / 1000;
 	}
 	
+	
+	
 	/**
-	 * 
+	 *
+	 * @param string $path
+	 */
+	public function getImage($path){
+		if(!file_exists(realpath($path))) throw new \Exception(sprinf('File "%s" not found'));
+		$path = realpath($path);
+		
+		foreach($this->images as $image){
+			if($image->path == $path){
+				return $image->reference;
+			}
+		}
+		
+		
+		$info = getimagesize($path);
+		
+		$object = new Dictionary();
+		$object->set('Type', new Name('XObject'));
+		$object->set('Subtype', new Name('Image'));
+		$object->set('Width', new Number($info[0]));
+		$object->set('Height', new Number($info[1]));
+		
+		switch($info['channels']){
+			case 3: $object->set('ColorSpace', new Name('DeviceRGB')); break;
+			case 4: $object->set('ColorSpace', new Name('DeviceCMYK')); break;
+			case 1: $object->set('ColorSpace', new Name('DeviceGray')); break;
+			default: $object->set('ColorSpace', new Name('DeviceRGB')); break;
+		}
+		$object->set('BitsPerComponent', new Number(isset($info['bits']) ? $info['bits'] : 8));
+		$object->set('Filter', new Name('DCTDecode'));
+		$reference = $this->io->allocateStream($object);
+		
+		$stream = $this->io->getIndirect($reference);
+		
+		switch($info[2]){
+			case IMAGETYPE_JPEG:
+				$handle = imagecreatefromjpeg($path);
+				ob_start();
+				imagejpeg($handle);
+				$contents = ob_get_contents();
+				ob_end_clean();
+				
+				
+				if($contents > filesize($path)){
+					$stream->append(file_get_contents($path));
+				}else{
+					$stream->append($contents);
+				}
+				imagedestroy($handle);
+			break;
+			case IMAGETYPE_PNG:
+				$handle = imagecreatefrompng($path);
+				ob_start();
+				imagejpeg($handle);
+				$stream->append(ob_get_contents());
+				ob_end_clean();
+				
+				$mask = new Dictionary();
+				$mask->set('Type', new Name('XObject'));
+				$mask->set('Subtype', new Name('Image'));
+				$mask->set('Width', new Number($info[0]));
+				$mask->set('Height', new Number($info[1]));
+				$mask->set('ColorSpace', new Name('DeviceGray'));
+				$mask->set('BitsPerComponent', new Number(8));
+				$maskReference = $this->io->allocateStream($mask);
+				$object->set('SMask', $maskReference);
+				
+				$stream = $this->io->getIndirect($maskReference);
+				for($y = 0; $y < $info[1]; $y++){
+					for($x = 0; $x < $info[0]; $x++){
+						$pixel = imagecolorat($handle, $x, $y);
+						$value = round((127 - (($pixel >> 24) & 0xFF)) / 127 * 255);
+						$stream->append(pack('C', $value));
+					}
+				}
+				imagedestroy($handle);
+			break;
+			default: throw new Exception('Unknown image format');
+		}
+		
+		$image = new \stdClass();
+		$image->path		= $path;
+		$image->localNames	= [];
+		$image->reference	= $reference;
+		$this->images[] 		= $image;
+		return $reference;
+	}
+
+	/**
+	 *
+	 * @param  \pdflib\datatypes\Dictionary $dictionary
+	 * @param  \pdflib\datatypes\Referenceable $reference
+	 * @return \pdflib\datatypes\Name
+	 */
+	public function getImageLocalName($dictionary, $reference){
+		// Check if the dictionary already contains the reference
+		foreach($dictionary as $localName=>$value){
+			if($value->getNumber() == $reference->getNumber() && $value->getGeneration() == $reference->getGeneration()){
+				return $localName;
+			}
+		}
+		
+		// Get cached font
+		$image = $this->getImageByReference($reference);
+		if(!$image) throw new \Exception('Failed to load image');
+		
+		// Lets see if the already used names can be used
+		foreach($image->localNames as $localName){
+			if(!$dictionary->get($localName)){
+				$dictionary->set($localName, $reference);
+				return $localName;
+			}
+		}
+		
+		// if all else fails generate new name
+		$index = count($this->images);
+		do {
+			if(!$dictionary->get('I'.$index)){
+				$localName = new Name('I'.$index);
+				$dictionary->set($localName, $reference);
+				$image->localNames[] = $localName;
+				return $localName;
+			}
+		}while($index++ < 100);
+		
+		throw new \Exception('Failed to generate new font name');
+	}
+	
+	/**
+	 *
 	 * @param  \pdflib\datatypes\Referenceable $reference
 	 * @return \stdClass|boolean
 	 */
-	private function getByReference($reference){
+	private function getFontByReference($reference){
 		foreach($this->fonts as $font){
+			if($font->reference->getNumber() == $reference->getNumber() && $font->reference->getGeneration() == $reference->getGeneration()){
+				return $font;
+			}
+		}
+		return false;
+	}
+	
+	/**
+	 *
+	 * @param  \pdflib\datatypes\Referenceable $reference
+	 * @return \stdClass|boolean
+	 */
+	private function getImageByReference($reference){
+		foreach($this->images as $font){
 			if($font->reference->getNumber() == $reference->getNumber() && $font->reference->getGeneration() == $reference->getGeneration()){
 				return $font;
 			}
@@ -164,7 +317,7 @@ class ResourceManager {
 			$fonts = $resources->get('Font');
 			if($fonts){
 				foreach ($fonts as $localName=>$reference){
-					$font = $this->getByReference($reference);
+					$font = $this->getFontByReference($reference);
 					if(!$font){
 						$descriptor = $this->io->getIndirect($reference)->getObject();
 						

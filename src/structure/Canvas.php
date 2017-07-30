@@ -74,6 +74,37 @@ class Canvas {
 	
 	/**
 	 * 
+	 * @param number $x
+	 * @param number $y
+	 * @param number $w
+	 * @param number $h
+	 * @param boolean $filled
+	 * @param boolean $border
+	 */
+	public function rectangle($x, $y, $w, $h, $filled=true, $border = false){
+		if($filled && $border){
+			$this->stream->append(sprintf("%.2F %.2F %.2F %.2F re B\n", $x, $this->height - $y, $w, -$h));
+		}elseif($filled){
+			$this->stream->append(sprintf("%.2F %.2F %.2F %.2F re f\n", $x, $this->height - $y, $w, -$h));
+		}elseif($border){
+			$this->stream->append(sprintf("%.2F %.2F %.2F %.2F re S\n", $x, $this->height - $y, $w, -$h));
+		}
+	}
+	
+	/**
+	 * 
+	 * @param \pdflib\structure\Image $image
+	 * @param number $x
+	 * @param number $y
+	 * @param number $w
+	 * @param number $h
+	 */
+	public function image($image, $x, $y, $w, $h){
+		$this->stream->append(sprintf("q %.2F 0 0 %.2F %.2F %.2F cm %s Do Q\n", $w, $h, $x, $this->height - ($y + $h), $image->getLocalName()->output()));
+	}
+	
+	/**
+	 * 
 	 * @param \pdflib\structure\Font $font
 	 * @return \pdflib\structure\Canvas
 	 */
