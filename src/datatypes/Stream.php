@@ -14,6 +14,15 @@ class Stream extends Indirect {
 	}
 	
 	public function getBody(){
+		if(!$this->getObject()->get('Filter')){
+			$contents = gzcompress($this->data);
+			if(strlen($contents) < strlen($this->data)){
+				$this->getObject()->set('Filter', new Name('FlateDecode'));
+				$this->getObject()->set('Length', new Number(strlen($this->data)));
+				$this->data = $contents;
+			}
+		}
+		
 		$lines = parent::getBody();
 		$lines[] = 'stream';
 		$lines[] = $this->data;
