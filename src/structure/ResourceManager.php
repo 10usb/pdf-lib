@@ -3,6 +3,8 @@ namespace pdflib\structure;
 
 use pdflib\datatypes\Name;
 use pdflib\datatypes\Dictionary;
+use pdflib\datatypes\Reference;
+use pdflib\datatypes\Referenceable;
 
 class ResourceManager {
 	/**
@@ -11,6 +13,10 @@ class ResourceManager {
 	 */
 	private $io;
 	
+	/**
+	 * 
+	 * @var array
+	 */
 	private $fonts;
 	
 	/**
@@ -20,6 +26,17 @@ class ResourceManager {
 	public function __construct($io){
 		$this->io		= $io;
 		$this->fonts	= [];
+		
+		$reference = $this->io->getValue('Root');
+		if($reference){
+			$root = $this->io->getIndirect($reference)->getObject();
+			$reference = $root->get('Pages');
+			if($reference){
+				$pages = $this->io->getIndirect($reference)->getObject();
+				if($pages->get('Resources')) $this->extract($pages->get('Resources'));
+				$this->search($pages);
+			}
+		}
 	}
 	
 	/**
@@ -98,5 +115,50 @@ class ResourceManager {
 			}
 		}
 		return false;
+	}
+	
+	
+	
+	private function search($branch){
+		foreach($branch->get('Kids') as $reference){
+			$child = $this->io->getIndirect($reference)->getObject();
+			if($child->get('Resources')) $this->extract($child->get('Resources'));
+			if($child->get('Kids')) $this->search($child);
+		}
+	}
+	
+	private function extract($resources){
+		if($resources instanceof Referenceable){
+			$this->extract($this->io->getIndirect($resources)->getObject());
+		}else{
+			echo $resources->output()."\n";
+			$fonts = $resources->get('Font');
+			if($fonts){
+				foreach ($fonts as $localName=>$reference){
+					$font = $this->getByReference($reference);
+					if(!$font){
+						$descriptor = $this->io->getIndirect($reference)->getObject();
+						
+						$font = new \stdClass();
+						$font->name			= "{$descriptor->get('BaseFont')}";
+						$font->localNames	= [];
+						$font->reference	= $reference;
+						$this->fonts[] = $font;
+					}
+					
+					$hasName = false;
+					foreach($font->localNames as $name){
+						if($name == "$localName"){
+							$hasName = true;
+							break;
+						}
+					}
+					
+					if(!$hasName){
+						$font->localNames[] = $localName;
+					}
+				}
+			}
+		}
 	}
 }

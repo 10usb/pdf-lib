@@ -96,6 +96,7 @@ class Page implements Referenceable {
 	 */
 	public function getFont($name, $size){
 		$resources = $this->indirect->getObject()->get('Resources');
+		// TODO if no Resource check parents, otherwise throw exception
 		if(!$dictionary = $resources->get('Font')){
 			$resources->set('Font', $dictionary= new Dictionary());
 		}
