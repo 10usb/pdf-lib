@@ -96,6 +96,17 @@ class Catalog {
 	}
 	
 	/**
+	 * Returns a font for calculation purposes
+	 * @param string $name
+	 * @param number $size
+	 * @return \pdflib\structure\Font
+	 */
+	public function getFont($name, $size){
+		$reference= $this->resourceManager->getFont($name);
+		return new Font($this->resourceManager, $reference, null, $size);
+	}
+	
+	/**
 	 * 
 	 * @return \pdflib\datatypes\Dictionary
 	 */

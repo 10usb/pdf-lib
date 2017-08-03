@@ -74,7 +74,7 @@ class ResourceManager {
 				return $reference;
 			}
 		}
-		throw new \Exception('Font not in repository');
+		throw new \Exception('Font "'.$name.'" not in repository');
 	}
 	
 	/**
@@ -118,7 +118,7 @@ class ResourceManager {
 	}
 	
 	/**
-	 * 
+	 *
 	 * @param  \pdflib\datatypes\Referenceable $reference
 	 * @param string $text
 	 * @return number
@@ -135,7 +135,15 @@ class ResourceManager {
 		return $width / 1000;
 	}
 	
-	
+	/**
+	 *
+	 * @param  \pdflib\datatypes\Referenceable $reference
+	 * @return string
+	 */
+	public function getFontName($reference){
+		$font = $this->getFontByReference($reference);
+		return $font->name;
+	}
 	
 	/**
 	 *

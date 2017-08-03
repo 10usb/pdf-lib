@@ -60,11 +60,16 @@ class Font implements Referenceable {
 		return $this->reference->getGeneration();
 	}
 	
+	public function getName(){
+		return $this->resourceManager->getFontName($this->reference);
+	}
+	
 	/**
 	 * 
 	 * @return \pdflib\datatypes\Name
 	 */
 	public function getLocalName(){
+		if(!$this->localName) throw new \Exception('Unrenderable font'); 
 		return $this->localName;
 	}
 	
