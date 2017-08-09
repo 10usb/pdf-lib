@@ -57,7 +57,6 @@ class File {
 		$this->defaults			= new \stdClass();
 		$this->defaults->Fonts	= realpath(__DIR__.'/../data/defaults.json');
 		$this->resourceManager	= null;
-		
 	}
 	
 	/**

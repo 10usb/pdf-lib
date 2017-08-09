@@ -60,6 +60,10 @@ class Font implements Referenceable {
 		return $this->reference->getGeneration();
 	}
 	
+	/**
+	 * 
+	 * @return string
+	 */
 	public function getName(){
 		return $this->resourceManager->getFontName($this->reference);
 	}

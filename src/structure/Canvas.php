@@ -46,7 +46,7 @@ class Canvas {
 	 * @param number $g
 	 * @param number $b
 	 */
-	public function setFillColor($r, $g = null, $b = null){
+	public function setFillColor($r, $g, $b){
 		$this->stream->append(sprintf("%.3F %.3F %.3F rg\n",$r / 255, $g / 255, $b / 255));
 		return $this;
 	}

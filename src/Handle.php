@@ -32,6 +32,7 @@ class Handle {
 	 */
 	public function __construct($name, $overwrite = false){
 		$this->handle		= fopen($name, $overwrite ? 'w+' : 'r+');
+		if(!$this->handle) throw new \Exception('Failed to open "'.$name.'" for '.($overwrite ? 'w+' : 'r+'));
 		$this->offset		= 0;
 		$this->initial		= null;
 		$this->lineEnding	= "\n";

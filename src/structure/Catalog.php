@@ -31,8 +31,8 @@ class Catalog {
 	
 	/**
 	 * 
-	 * @param unknown $width
-	 * @param unknown $height
+	 * @param number $width
+	 * @param number $height
 	 * @return \pdflib\structure\Catalog
 	 */
 	public function setSize($width, $height){
@@ -43,6 +43,24 @@ class Catalog {
 		$box->push(new Number($height));
 		$this->io->setDefault('MediaBox', $box);
 		return $this;
+	}
+	
+	/**
+	 * 
+	 * @param number $width
+	 * @param number $height
+	 * @return boolean
+	 */
+	public function getSize(&$width, &$height){
+		/** @var \pdflib\datatypes\Collection $default */
+		if(!($default = $this->io->getDefault('MediaBox'))){
+			$width	= false;
+			$height	= false;
+			return false;
+		}
+		$width	= $default->get(2);
+		$height	= $default->get(3);
+		return true;
 	}
 	
 	/**
