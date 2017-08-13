@@ -118,6 +118,22 @@ $canvas->line(100 + 1, 90, 450 - 1, 90);
 $canvas->line(100 + 1, 130, 450 - 1, 130);
 $canvas->line(100 + 1, 170, 450 - 1, 170);
 
+$canvas->setStrokeColor(66, 66, 66);
+$canvas->setLineWidth(26);
+
+$canvas->setLineDash(3, 3);
+$canvas->line(100, 210, 450, 210);
+
+$canvas->setLineCap(1);
+$canvas->setLineDash(0, 39);
+$canvas->line(100 + 13, 250, 450, 250);
+
+$canvas->setLineCap(0);
+$canvas->setLineDash(26, 26);
+$canvas->line(100, 290, 450, 290);
+
+$canvas->setLineDash(0, 0);
+
 
 $canvas->setFillColor(192, 192, 192);
 $canvas->text(30.8, 400.8 + $font->getSize(), "Polygons");
@@ -166,7 +182,7 @@ for($index = 0; $index < 5; $index++){
 }
 $canvas->fill(true);
 
-// Filled & Stroked with even odd rule polygon
+// Filled & Stroked with even odd rule polygon and line dashed
 $radius = 70;
 for($index = 0; $index < 5; $index++){
 	$radians = pi() * 2 / 5 * $index * 2;
@@ -177,6 +193,7 @@ for($index = 0; $index < 5; $index++){
 	}
 }
 $canvas->closePath();
+$canvas->setLineDash(5, 3);
 $canvas->fillAndStroke(true);
 
 

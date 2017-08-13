@@ -93,6 +93,26 @@ class Canvas {
 	
 	/**
 	 * 
+	 * @param number $on
+	 * @param number $off
+	 * @param number $start
+	 * @return \pdflib\structure\Canvas
+	 */
+	public function setLineDash($on, $off, $start = 0){
+		if($on == 0 && $off == 0){
+			$this->stream->append("[ ] 0 d\n");
+		}elseif($on == $off){
+			if($start >= $on + $off) throw new \Exception('Start can\'t be larger then the sum of on and off');
+			$this->stream->append(sprintf("[%.2F] %.2F d\n", $on, $start));
+		}else{
+			if($start >= $on + $off) throw new \Exception('Start can\'t be larger then the sum of on and off');
+			$this->stream->append(sprintf("[%.2F %.2F] %.2F d\n", $on, $off, $start));
+		}
+		return $this;
+	}
+	
+	/**
+	 * 
 	 * @return \pdflib\structure\Canvas
 	 */
 	public function save(){
