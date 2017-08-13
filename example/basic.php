@@ -55,7 +55,7 @@ foreach($lines as $index=>$line){
 	$canvas->text(30, 112 + $index * $font->getSize() * 1.5, $line);
 }
 
-
+/* Page 1: Images & Rectangles */
 $page = $catalog->addPage();
 $canvas = $page->getCanvas();
 
@@ -86,6 +86,101 @@ $canvas->rectangle(30, 450, 535, 200);
 $canvas->setFillColor(66, 66, 192);
 $canvas->rectangle(30 + (535 - 250) / 2, 550, 250, 200, true, true);
 $canvas->rectangle(30 + (535 - 450) / 2, 475, 450, 325, false, true);
+
+/* Page 2: Lines & Polygons */
+$page = $catalog->addPage();
+$canvas = $page->getCanvas();
+
+$canvas->setFont($font = $page->getFont('Times-BoldItalic', 22));
+
+$canvas->setFillColor(192, 192, 192);
+$canvas->text(30.8, 30.8+ $font->getSize(), "Lines");
+
+$canvas->setFillColor(66, 66, 66);
+$canvas->text(30, 30 + $font->getSize(), "Lines");
+
+$canvas->setStrokeColor(66, 66, 66);
+$canvas->setLineWidth(26);
+
+$canvas->setLineCap(0);
+$canvas->line(100, 90, 450, 90);
+
+$canvas->setLineCap(1);
+$canvas->line(100, 130, 450, 130);
+
+$canvas->setLineCap(2);
+$canvas->line(100, 170, 450, 170);
+
+$canvas->setStrokeColor(255, 255, 255);
+$canvas->setLineWidth(1);
+$canvas->setLineCap(0);
+$canvas->line(100 + 1, 90, 450 - 1, 90);
+$canvas->line(100 + 1, 130, 450 - 1, 130);
+$canvas->line(100 + 1, 170, 450 - 1, 170);
+
+
+$canvas->setFillColor(192, 192, 192);
+$canvas->text(30.8, 400.8 + $font->getSize(), "Polygons");
+
+$canvas->setFillColor(66, 66, 66);
+$canvas->text(30, 400 + $font->getSize(), "Polygons");
+
+$canvas->setStrokeColor(66, 66, 66);
+$canvas->setFillColor(128, 128, 128);
+$canvas->setLineWidth(1.5);
+
+// Filled polygon
+$radius = 70;
+for($index = 0; $index < 5; $index++){
+	$radians = pi() * 2 / 5 * $index * 2;
+	if($index == 0){
+		$canvas->moveTo(100 + cos($radians) * $radius, 500 + sin($radians) * $radius);
+	}else{
+		$canvas->lineTo(100 + cos($radians) * $radius, 500 + sin($radians) * $radius);
+	}
+}
+$canvas->fill();
+
+// Stroked polygon
+$radius = 70;
+for($index = 0; $index < 5; $index++){
+	$radians = pi() * 2 / 5 * $index * 2;
+	if($index == 0){
+		$canvas->moveTo(220 + cos($radians) * $radius, 500 + sin($radians) * $radius);
+	}else{
+		$canvas->lineTo(220 + cos($radians) * $radius, 500 + sin($radians) * $radius);
+	}
+}
+$canvas->closePath();
+$canvas->stroke();
+
+// Filled with even odd rule polygon
+$radius = 70;
+for($index = 0; $index < 5; $index++){
+	$radians = pi() * 2 / 5 * $index * 2;
+	if($index == 0){
+		$canvas->moveTo(340 + cos($radians) * $radius, 500 + sin($radians) * $radius);
+	}else{
+		$canvas->lineTo(340 + cos($radians) * $radius, 500 + sin($radians) * $radius);
+	}
+}
+$canvas->fill(true);
+
+// Filled & Stroked with even odd rule polygon
+$radius = 70;
+for($index = 0; $index < 5; $index++){
+	$radians = pi() * 2 / 5 * $index * 2;
+	if($index == 0){
+		$canvas->moveTo(460 + cos($radians) * $radius, 500 + sin($radians) * $radius);
+	}else{
+		$canvas->lineTo(460 + cos($radians) * $radius, 500 + sin($radians) * $radius);
+	}
+}
+$canvas->closePath();
+$canvas->fillAndStroke(true);
+
+
+
 
 $file->flush();
 
