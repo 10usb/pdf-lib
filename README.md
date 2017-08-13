@@ -1,5 +1,4 @@
 # pdf-lib
-
 A PHP PDF library that is not created to easily add rich content *(HTML etc)* to a PDF file. But rather allowing any valid PDF content to be added to the file without the excess of functionality that **"tries"** to emulate HTML like behavior and limit/complicate simple tasks. This library takes the concept that every page is no more then just a canvas area that can takes 2D graphics rendering commands. Any other functionality there might be is considers meta data.
 
 
@@ -30,3 +29,11 @@ $canvas->text(50, 70, "You start with...");
 
 $file->flush();
 ```
+
+## Nice to have
+While a lot can be done, more can be done.
+ - Ability to set the compression/filter methods to use (or none) 
+ - Append the contents of one file to then end of an other (or even better insert between)
+ - Clean-up an incremental updated pdf file
+ - Add optimization of render insttructions
+ - Add optimization by shared resource dictionary between pages 
