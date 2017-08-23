@@ -267,7 +267,7 @@ class Canvas {
 	 * @return \pdflib\structure\Canvas
 	 */
 	public function clip($evenOdd = false){
-		$this->stream->append($evenOdd ? "n W*\n" : "n W\n");;
+		$this->stream->append($evenOdd ? "W* n\n" : "W n\n");;
 		return $this;
 	}
 }

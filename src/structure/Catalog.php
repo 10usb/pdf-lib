@@ -120,7 +120,7 @@ class Catalog {
 	 * @return \pdflib\structure\Font
 	 */
 	public function getFont($name, $size){
-		$reference= $this->resourceManager->getFont($name);
+		$reference = $this->resourceManager->getFont($name);
 		return new Font($this->resourceManager, $reference, null, $size);
 	}
 	
